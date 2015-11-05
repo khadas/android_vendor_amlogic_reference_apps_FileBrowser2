@@ -101,7 +101,8 @@ public class ThumbnailView1 extends Activity{
     private ToggleButton btn_mode;
     private String lv_sort_flag = "by_name";
     private boolean isInFileBrowserView=false;
-    StorageManager sm = null ;
+    private StorageManager mStorageManager;
+    private List<VolumeInfo> mVolumes;
 
     Comparator  mFileComparator = new Comparator<File>(){
         @Override
@@ -125,7 +126,24 @@ public class ThumbnailView1 extends Activity{
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map;
 
-        File dir = new File(NAND_PATH);
+        mVolumes = mStorageManager.getVolumes();
+        Collections.sort(mVolumes, VolumeInfo.getDescriptionComparator());
+        for (VolumeInfo vol : mVolumes) {
+            if (vol != null && vol.isMountedReadable()) {
+                File path = vol.getPath();
+                map = new HashMap<String, Object>();
+                map.put("item_name", mStorageManager.getBestVolumeDescription(vol));
+                map.put("file_path", path.getAbsolutePath());
+                map.put("item_type", R.drawable.sdcard_default);
+                map.put("file_date", 0);
+                map.put("file_size", 1);	//for sort
+                map.put("item_sel", R.drawable.item_img_unsel);
+                list.add(map);
+            }
+        }
+
+        //shield for android 6.0 support
+        /*File dir = new File(NAND_PATH);
         if (dir.exists() && dir.isDirectory()) {
             map = new HashMap<String, Object>();
             map.put("item_name", getText(R.string.sdcard_device_str));
@@ -140,8 +158,8 @@ public class ThumbnailView1 extends Activity{
         dir = new File(SD_PATH);
         if (dir.exists() && dir.isDirectory()) {
             map = new HashMap<String, Object>();
-            /*String label = sm.getVolumeFSLabel(SD_PATH);
-            map.put("item_name", (label==null)?getText(R.string.ext_sdcard_device_str):label);*/
+            //String label = mStorageManager.getVolumeFSLabel(SD_PATH);
+            //map.put("item_name", (label==null)?getText(R.string.ext_sdcard_device_str):label);
             map.put("item_name", getText(R.string.ext_sdcard_device_str));
             map.put("file_path", SD_PATH);
             map.put("item_type", R.drawable.sdcard_default);
@@ -165,8 +183,8 @@ public class ThumbnailView1 extends Activity{
                         String path = file.getAbsolutePath();
                         if (path.startsWith(USB_PATH+"/sd")&&!path.equals(SD_PATH)) {
                             map = new HashMap<String, Object>();
-                            /*String label = sm.getVolumeFSLabel(path);
-                            map.put("item_name",(label==null)? (getText(R.string.usb_device_str) + " " + file.getName()):label);*/
+                            //String label = mStorageManager.getVolumeFSLabel(path);
+                            //map.put("item_name",(label==null)? (getText(R.string.usb_device_str) + " " + file.getName()):label);
                             map.put("item_name", getText(R.string.usb_device_str) + " " + file.getName());
                             map.put("file_path", path);
                             map.put("item_type", R.drawable.usb_default);
@@ -222,7 +240,7 @@ public class ThumbnailView1 extends Activity{
                             map = new HashMap<String, Object>();
                             dev_count++;
                             char data = (char) ('A' +dev_count-1);
-                            ///String label = sm.getVolumeFSLabel(path);
+                            ///String label = mStorageManager.getVolumeFSLabel(path);
                             devname =  getText(R.string.usb_device_str) +"(" +data + ":)" ;
                             ///map.put("item_name", (label==null)?devname:label);
                             map.put("item_name", devname);
@@ -257,7 +275,7 @@ public class ThumbnailView1 extends Activity{
             if (stateStr.equals(Environment.MEDIA_MOUNTED)) {
                 list.add(map);
             }
-        }
+        }*/
 
         updatePathShow(ROOT_PATH);
         if (!list.isEmpty()) {
@@ -700,7 +718,7 @@ public class ThumbnailView1 extends Activity{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thumbnail);
-        sm = (StorageManager)getSystemService(Context.STORAGE_SERVICE);
+        mStorageManager = (StorageManager)getSystemService(Context.STORAGE_SERVICE);
         Bundle bundle = this.getIntent().getExtras();
         if(!bundle.getString("sort_flag").equals("")){
             lv_sort_flag=bundle.getString("sort_flag");
@@ -1005,6 +1023,19 @@ public class ThumbnailView1 extends Activity{
                 if (!cur_path.equals(ROOT_PATH)) {
                     File file = new File(cur_path);
                     String parent_path = file.getParent();
+
+                    //add for android 6.0 support
+                    for (VolumeInfo vol : mVolumes) {
+                        if (vol != null && vol.isMountedReadable()) {
+                            File path = vol.getPath();
+                            if (cur_path.equals(path.getAbsolutePath())) {
+                                cur_path = ROOT_PATH;
+                                ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+                                return;
+                            }
+                        }
+                    }
+
                     if(cur_path.equals(NAND_PATH)||cur_path.equals(SD_PATH)||parent_path.equals(USB_PATH))
                         cur_path = ROOT_PATH;
                     else
@@ -1708,14 +1739,26 @@ public class ThumbnailView1 extends Activity{
             if (!cur_path.equals(ROOT_PATH)) {
                 File file = new File(cur_path);
                 String parent_path = file.getParent();
+
+                //add for android 6.0 support
+                for (VolumeInfo vol : mVolumes) {
+                    if (vol != null && vol.isMountedReadable()) {
+                        File path = vol.getPath();
+                        if (cur_path.equals(path.getAbsolutePath())) {
+                            cur_path = ROOT_PATH;
+                            ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+                            return true;
+                        }
+                    }
+                }
+
                 if(cur_path.equals(NAND_PATH)||cur_path.equals(SD_PATH)||parent_path.equals(USB_PATH)) {
                     cur_path = ROOT_PATH;
-                    ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                 }
                 else {
                     cur_path = parent_path;
-                    ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                 }
+                ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                 return true;
             }
         }
