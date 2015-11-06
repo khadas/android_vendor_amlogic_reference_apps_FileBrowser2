@@ -102,7 +102,6 @@ public class ThumbnailView1 extends Activity{
     private String lv_sort_flag = "by_name";
     private boolean isInFileBrowserView=false;
     private StorageManager mStorageManager;
-    private List<VolumeInfo> mVolumes;
 
     Comparator  mFileComparator = new Comparator<File>(){
         @Override
@@ -126,10 +125,22 @@ public class ThumbnailView1 extends Activity{
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map;
 
-        mVolumes = mStorageManager.getVolumes();
-        Collections.sort(mVolumes, VolumeInfo.getDescriptionComparator());
-        for (VolumeInfo vol : mVolumes) {
-            if (vol != null && vol.isMountedReadable()) {
+        File dir = new File(NAND_PATH);
+        if (dir.exists() && dir.isDirectory()) {
+            map = new HashMap<String, Object>();
+            map.put("item_name", getText(R.string.sdcard_device_str));
+            map.put("file_path", NAND_PATH);
+            map.put("item_type", R.drawable.sdcard_default);
+            map.put("file_date", 0);
+            map.put("file_size", 1);	//for sort
+            map.put("item_sel", R.drawable.item_img_unsel);
+            list.add(map);
+        }
+
+        List<VolumeInfo> volumes = mStorageManager.getVolumes();
+        Collections.sort(volumes, VolumeInfo.getDescriptionComparator());
+        for (VolumeInfo vol : volumes) {
+            if (vol != null && vol.isMountedReadable() && vol.getType() == VolumeInfo.TYPE_PUBLIC) {
                 File path = vol.getPath();
                 map = new HashMap<String, Object>();
                 map.put("item_name", mStorageManager.getBestVolumeDescription(vol));
@@ -143,19 +154,7 @@ public class ThumbnailView1 extends Activity{
         }
 
         //shield for android 6.0 support
-        /*File dir = new File(NAND_PATH);
-        if (dir.exists() && dir.isDirectory()) {
-            map = new HashMap<String, Object>();
-            map.put("item_name", getText(R.string.sdcard_device_str));
-            map.put("file_path", NAND_PATH);
-            map.put("item_type", R.drawable.sdcard_default);
-            map.put("file_date", 0);
-            map.put("file_size", 1);	//for sort
-            map.put("item_sel", R.drawable.item_img_unsel);
-            list.add(map);
-        }
-
-        dir = new File(SD_PATH);
+        /*dir = new File(SD_PATH);
         if (dir.exists() && dir.isDirectory()) {
             map = new HashMap<String, Object>();
             //String label = mStorageManager.getVolumeFSLabel(SD_PATH);
@@ -1023,19 +1022,6 @@ public class ThumbnailView1 extends Activity{
                 if (!cur_path.equals(ROOT_PATH)) {
                     File file = new File(cur_path);
                     String parent_path = file.getParent();
-
-                    //add for android 6.0 support
-                    for (VolumeInfo vol : mVolumes) {
-                        if (vol != null && vol.isMountedReadable()) {
-                            File path = vol.getPath();
-                            if (cur_path.equals(path.getAbsolutePath())) {
-                                cur_path = ROOT_PATH;
-                                ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
-                                return;
-                            }
-                        }
-                    }
-
                     if(cur_path.equals(NAND_PATH)||cur_path.equals(SD_PATH)||parent_path.equals(USB_PATH))
                         cur_path = ROOT_PATH;
                     else
@@ -1739,19 +1725,6 @@ public class ThumbnailView1 extends Activity{
             if (!cur_path.equals(ROOT_PATH)) {
                 File file = new File(cur_path);
                 String parent_path = file.getParent();
-
-                //add for android 6.0 support
-                for (VolumeInfo vol : mVolumes) {
-                    if (vol != null && vol.isMountedReadable()) {
-                        File path = vol.getPath();
-                        if (cur_path.equals(path.getAbsolutePath())) {
-                            cur_path = ROOT_PATH;
-                            ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
-                            return true;
-                        }
-                    }
-                }
-
                 if(cur_path.equals(NAND_PATH)||cur_path.equals(SD_PATH)||parent_path.equals(USB_PATH)) {
                     cur_path = ROOT_PATH;
                 }

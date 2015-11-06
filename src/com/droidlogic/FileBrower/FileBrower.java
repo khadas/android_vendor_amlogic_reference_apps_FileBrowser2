@@ -123,7 +123,6 @@ public class FileBrower extends Activity {
     String open_mode[] = {"movie","music","photo","packageInstall"};
 
     private StorageManager mStorageManager;
-    private List<VolumeInfo> mVolumes;
 
     Comparator  mFileComparator = new Comparator<File>(){
         @Override
@@ -579,19 +578,6 @@ public class FileBrower extends Activity {
                 if (!cur_path.equals(ROOT_PATH)) {
                     File file = new File(cur_path);
                     String parent_path = file.getParent();
-
-                    //add for android 6.0 support
-                    for (VolumeInfo vol : mVolumes) {
-                        if (vol != null && vol.isMountedReadable()) {
-                            File path = vol.getPath();
-                            if (cur_path.equals(path.getAbsolutePath())) {
-                                cur_path = ROOT_PATH;
-                                DeviceScan();
-                                return;
-                            }
-                        }
-                    }
-
                     if (cur_path.equals(NAND_PATH) || cur_path.equals(SD_PATH) || parent_path.equals(USB_PATH)) {
                         cur_path = ROOT_PATH;
                         DeviceScan();
@@ -760,25 +746,7 @@ public class FileBrower extends Activity {
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map;
 
-        mVolumes = mStorageManager.getVolumes();
-        Collections.sort(mVolumes, VolumeInfo.getDescriptionComparator());
-        for (VolumeInfo vol : mVolumes) {
-            if (vol != null && vol.isMountedReadable()) {
-                File path = vol.getPath();
-                map = new HashMap<String, Object>();
-                map.put("item_name", mStorageManager.getBestVolumeDescription(vol));
-                map.put("file_path", path.getAbsolutePath());
-                map.put("item_type", R.drawable.sd_card_icon);
-                map.put("file_date", 0);
-                map.put("file_size", 1);	//for sort
-                map.put("item_size", null);
-                map.put("item_rw", null);
-                list.add(map);
-            }
-        }
-
-        //shield for android 6.0 support
-        /*File dir = new File(NAND_PATH);
+        File dir = new File(NAND_PATH);
         if (dir.exists() && dir.isDirectory()) {
             map = new HashMap<String, Object>();
             map.put("item_name", getText(R.string.sdcard_device_str));
@@ -791,7 +759,25 @@ public class FileBrower extends Activity {
             list.add(map);
         }
 
-        dir = new File(SD_PATH);
+        List<VolumeInfo> volumes = mStorageManager.getVolumes();
+        Collections.sort(volumes, VolumeInfo.getDescriptionComparator());
+        for (VolumeInfo vol : volumes) {
+            if (vol != null && vol.isMountedReadable() && vol.getType() == VolumeInfo.TYPE_PUBLIC) {
+                File path = vol.getPath();
+                map = new HashMap<String, Object>();
+                map.put("item_name", mStorageManager.getBestVolumeDescription(vol));
+                map.put("file_path", path.getAbsolutePath());
+                map.put("item_type", R.drawable.sd_card_icon);
+                map.put("file_date", 0);
+                map.put("file_size", 1);
+                map.put("item_size", null);
+                map.put("item_rw", null);
+                list.add(map);
+            }
+        }
+
+        //shield for android 6.0 support
+        /*dir = new File(SD_PATH);
         if (dir.exists() && dir.isDirectory()) {
             map = new HashMap<String, Object>();
             //String label = mStorageManager.getVolumeFSLabel(SD_PATH);
@@ -1860,19 +1846,6 @@ public class FileBrower extends Activity {
             if (!cur_path.equals(ROOT_PATH)) {
                 File file = new File(cur_path);
                 String parent_path = file.getParent();
-
-                //add for android 6.0 support
-                for (VolumeInfo vol : mVolumes) {
-                    if (vol != null && vol.isMountedReadable()) {
-                        File path = vol.getPath();
-                        if (cur_path.equals(path.getAbsolutePath())) {
-                            cur_path = ROOT_PATH;
-                            DeviceScan();
-                            return true;
-                        }
-                    }
-                }
-
                 if(cur_path.equals(NAND_PATH)||cur_path.equals(SD_PATH)||parent_path.equals(USB_PATH)) {
                     cur_path = ROOT_PATH;
                     DeviceScan();
