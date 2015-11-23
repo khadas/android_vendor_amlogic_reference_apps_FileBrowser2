@@ -767,7 +767,13 @@ public class FileBrower extends Activity {
                 map = new HashMap<String, Object>();
                 map.put("item_name", mStorageManager.getBestVolumeDescription(vol));
                 map.put("file_path", path.getAbsolutePath());
-                map.put("item_type", R.drawable.sd_card_icon);
+                DiskInfo disk = vol.getDisk();
+                if (disk.isUsb()) {
+                    map.put("item_type", R.drawable.usb_card_icon);
+                }
+                else {
+                    map.put("item_type", R.drawable.sd_card_icon);
+                }
                 map.put("file_date", 0);
                 map.put("file_size", 1);
                 map.put("item_size", null);

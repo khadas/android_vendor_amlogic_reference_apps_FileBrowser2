@@ -145,7 +145,13 @@ public class ThumbnailView1 extends Activity{
                 map = new HashMap<String, Object>();
                 map.put("item_name", mStorageManager.getBestVolumeDescription(vol));
                 map.put("file_path", path.getAbsolutePath());
-                map.put("item_type", R.drawable.sdcard_default);
+                DiskInfo disk = vol.getDisk();
+                if (disk.isUsb()) {
+                    map.put("item_type", R.drawable.usb_default);
+                }
+                else {
+                    map.put("item_type", R.drawable.sdcard_default);
+                }
                 map.put("file_date", 0);
                 map.put("file_size", 1);	//for sort
                 map.put("item_sel", R.drawable.item_img_unsel);
