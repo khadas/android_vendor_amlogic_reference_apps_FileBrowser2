@@ -916,7 +916,7 @@ public class FileBrower extends Activity {
             }
         }*/
 
-        updatePathShow(ROOT_PATH);
+        FileOp.updatePathShow(this, mStorageManager, ROOT_PATH, false);
         if (!list.isEmpty()) {
             Collections.sort(list, new Comparator<Map<String, Object>>() {
                 public int compare(Map<String, Object> object1, Map<String, Object> object2) {
@@ -1473,7 +1473,7 @@ public class FileBrower extends Activity {
                         }
                     }
                 }
-                updatePathShow(path);
+                FileOp.updatePathShow(this, mStorageManager, path, false);
             }
         }
         catch (Exception e) {
@@ -1483,15 +1483,6 @@ public class FileBrower extends Activity {
 
         //Log.i(TAG, "list size = " + list.size());
         return list;
-    }
-
-    /** updatePathShow */
-    private void updatePathShow(String path) {
-        tv = (TextView) findViewById(R.id.path);
-        if (path.equals(ROOT_PATH))
-            tv.setText(getText(R.string.rootDevice));
-        else
-            tv.setText(path);
     }
 
     /** getFileListAdapterSorted */
@@ -1535,7 +1526,7 @@ public class FileBrower extends Activity {
     }
 
     private List<Map<String, Object>> getFileListDataSorted(String path, String sort_type) {
-        updatePathShow(path);
+        FileOp.updatePathShow(this, mStorageManager, path, false);
         if (!mListLoaded) {
             mListLoaded = true;
             showDialog(LOAD_DIALOG_ID);

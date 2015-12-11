@@ -282,7 +282,9 @@ public class ThumbnailView1 extends Activity{
             }
         }*/
 
-        updatePathShow(ROOT_PATH);
+        FileOp.updatePathShow(this, mStorageManager, ROOT_PATH, true);
+        if (!mMediaScannerRunning)
+            ThumbnailOpUtils.updateThumbnailsForDir(getBaseContext(), path);
         if (!list.isEmpty()) {
             Collections.sort(list, new Comparator<Map<String, Object>>() {
                 public int compare(Map<String, Object> object1, Map<String, Object> object2) {
@@ -362,7 +364,9 @@ public class ThumbnailView1 extends Activity{
                         }
                     }
                 }
-                updatePathShow(path);
+                FileOp.updatePathShow(this, mStorageManager, path, true);
+                if (!mMediaScannerRunning)
+                    ThumbnailOpUtils.updateThumbnailsForDir(getBaseContext(), path);
             }
         } catch (Exception e) {
         Log.e(TAG, "Exception when getFileListData(): ", e);
@@ -374,7 +378,9 @@ public class ThumbnailView1 extends Activity{
     }
 
     private List<Map<String, Object>> getFileListDataSorted(String path, String sort_type) {
-        updatePathShow(path);
+        FileOp.updatePathShow(this, mStorageManager, path, true);
+        if (!mMediaScannerRunning)
+            ThumbnailOpUtils.updateThumbnailsForDir(getBaseContext(), path);
 
         if (!mListLoaded) {
             mListLoaded = true;
@@ -1110,18 +1116,6 @@ public class ThumbnailView1 extends Activity{
             default:
                 break;
         }
-    }
-
-    private void updatePathShow(String path) {
-        // TODO Auto-generated method stub
-        TextView tv = (TextView) findViewById(R.id.thumb_path);
-        if (path.equals(ROOT_PATH))
-            tv.setText(getText(R.string.rootDevice));
-        else
-            tv.setText(path);
-
-        if (!mMediaScannerRunning)
-            ThumbnailOpUtils.updateThumbnailsForDir(getBaseContext(), path);
     }
 
     private void openFile(String file_path) {
