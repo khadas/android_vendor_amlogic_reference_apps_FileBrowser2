@@ -1223,6 +1223,7 @@ public class FileOp {
 
     public static void updatePathShow(Activity activity, StorageManager storageManager, String path, boolean isThumbnailView) {
         TextView tv;
+        boolean pathSetted = false;
         if (isThumbnailView) {
             tv = (TextView) activity.findViewById(R.id.thumb_path);
         }
@@ -1248,8 +1249,14 @@ public class FileOp {
                         pathLast = path.substring(idx + len);
                         pathDest = storageManager.getBestVolumeDescription(vol) + pathLast;
                         tv.setText(pathDest);
+                        pathSetted = true;
+                        break;
                     }
                 }
+            }
+
+            if (!pathSetted) {
+                tv.setText(path);
             }
         }
     }
