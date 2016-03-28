@@ -673,7 +673,6 @@ public class FileBrower extends Activity {
     protected void openFile(File f) {
         // TODO Auto-generated method stub
         Intent intent = new Intent();
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setAction(android.content.Intent.ACTION_VIEW);
         String type = "*/*";
         type = FileOp.CheckMediaType(f);
