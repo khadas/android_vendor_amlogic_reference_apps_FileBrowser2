@@ -223,6 +223,7 @@ public class FileOp {
         ".jif",
         ".jfif",
         ".mpo",
+        ".webp",
         ".3dg",
         "3dp"
     };
