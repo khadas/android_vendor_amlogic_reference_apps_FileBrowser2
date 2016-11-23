@@ -186,6 +186,7 @@ public class FileOp {
         ".webm",
         ".mpe",
         ".pmp",
+        ".trp",
         ".mvc",
        /* "" */
     };
