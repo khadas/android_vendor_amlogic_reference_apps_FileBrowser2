@@ -187,6 +187,7 @@ public class FileOp {
         ".mpe",
         ".pmp",
         ".trp",
+        ".bin",
         ".mvc",
        /* "" */
     };
