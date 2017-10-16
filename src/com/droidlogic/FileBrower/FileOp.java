@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Iterator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -38,14 +40,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.os.StatFs;
-import android.os.storage.StorageManager;
+///import android.os.storage.StorageManager;
 import android.os.storage.VolumeInfo;
 import android.widget.TextView;
 import android.util.Log;
 import android.net.Uri;
 
 import com.droidlogic.FileBrower.FileBrowerDatabase.FileMarkCursor;
-
+import com.droidlogic.app.FileListManager;
 
 public class FileOp {
     public static File copying_file = null;
@@ -54,11 +56,8 @@ public class FileOp {
     public static boolean IsBusy = false;
     public static String source_path = null;
     public static String target_path = null;
-    private static final String ROOT_PATH = "/storage";
-    private static final String NAND_PATH = Environment.getExternalStorageDirectory().getPath();//"/storage/sdcard0";
-    private static final String SD_PATH = "/storage/sdcard0/external_sdcard";
-    private static final String USB_PATH ="/storage/sdcard0/usbdrive";
-    private static final String SATA_PATH ="/storage/sdcard0/sata";
+    private static Context mContext;
+    public static final String KEY_PATH = "key_path";
     public static void SetMode(boolean value){
         switch_mode = value;
     }
@@ -102,176 +101,31 @@ public class FileOp {
 
     /** getFileTypeImg */
     public static Object getFileTypeImg(String filename) {
-        if (isMusic(filename)) {
+        if (FileListManager.isMusic(filename)) {
             return R.drawable.item_type_music;
-        } else if (isPhoto(filename)) {
+        } else if (FileListManager.isPhoto(filename)) {
             return R.drawable.item_type_photo;
-        } else if (isVideo(filename)) {
+        } else if (FileListManager.isVideo(filename)) {
             return R.drawable.item_type_video;
-        } else if (isApk(filename)) {
+        } else if (FileListManager.isApk(filename)) {
             return R.drawable.item_type_apk;
         } else
             return R.drawable.item_type_file;
     }
     public static Object getThumbImage(String filename) {
-        if (isMusic(filename)) {
+        if (FileListManager.isMusic(filename)) {
             return R.drawable.item_preview_music;
-        } else if (isPhoto(filename)) {
+        } else if (FileListManager.isPhoto(filename)) {
             return R.drawable.item_preview_photo;
-        } else if (isVideo(filename)) {
+        } else if (FileListManager.isVideo(filename)) {
             return R.drawable.item_preview_video;
-        } else if (isApk(filename)) {
+        } else if (FileListManager.isApk(filename)) {
             return R.drawable.item_preview_apk;
         } else
             return R.drawable.item_preview_file;
     }
 
-    /** get file type op*/
-    public static boolean isVideo(String filename) {
-        String name = filename.toLowerCase();
-        for (String ext : video_extensions) {
-            if (name.endsWith(ext))
-                return true;
-        }
-        return false;
-    }
-    public static boolean isMusic(String filename) {
-        String name = filename.toLowerCase();
-        for (String ext : music_extensions) {
-            if (name.endsWith(ext))
-                return true;
-        }
-        return false;
-    }
-    public static boolean isPhoto(String filename) {
-        String name = filename.toLowerCase();
-        for (String ext : photo_extensions) {
-            if (name.endsWith(ext))
-                return true;
-        }
-        return false;
-    }
-    public static boolean isApk(String filename) {
-        String name = filename.toLowerCase();
-        if (name.endsWith(".apk"))
-            return true;
-        return false;
-    }
-    public static boolean isHtm(String filename) {
-        String name = filename.toLowerCase();
-        if (name.endsWith(".htm") || name.endsWith(".shtml") || name.endsWith(".bin"))
-            return true;
-        return false;
-    }
-    public static boolean isPdf(String filename) {
-        String name = filename.toLowerCase();
-        if (name.endsWith(".pdf"))
-            return true;
-        return false;
-    }
-
-    /* file type extensions */
-    //video from layer
-    public static final String[] video_extensions = { ".3gp",
-        ".3g2",
-        ".divx",
-        ".h264",
-        ".h265",
-        ".avi",
-        ".m2ts",
-        ".mkv",
-        ".mov",
-        ".mp4",
-        ".mpg",
-        ".mpeg",
-        ".rm",
-        ".rmvb",
-        ".wmv",
-        ".ts",
-        ".tp",
-        ".dat",
-        ".vob",
-        ".flv",
-        ".bit",
-        ".vc1",
-        ".m4v",
-        ".f4v",
-        ".asf",
-        ".lst",
-        ".mts",
-        ".webm",
-        ".mpe",
-        ".pmp",
-        ".trp",
-        ".bin",
-        ".mvc",
-       /* "" */
-    };
-    //music
-    private static final String[] music_extensions = { ".mp3",
-        ".wma",
-        ".m4a",
-        ".aac",
-        ".ape",
-        ".mp2",
-        ".ogg",
-        ".flac",
-        ".alac",
-        ".wav",
-        ".mid",
-        ".xmf",
-        ".mka",
-        ".aiff",
-        ".aifc",
-        ".aif",
-        ".pcm",
-        ".adpcm"
-    };
-    //photo
-    private static final String[] photo_extensions = { ".jpg",
-        ".jpeg",
-        ".bmp",
-        ".tif",
-        ".tiff",
-        ".png",
-        ".gif",
-        ".giff",
-        ".jfi",
-        ".jpe",
-        ".jif",
-        ".jfif",
-        ".mpo",
-        ".webp",
-        ".3dg",
-        "3dp"
-    };
-    public static String CheckMediaType(File file){
-        String typeStr="application/*";
-        String filename = file.getName();
-
-        if (isVideo(filename))
-            typeStr = "video/*";
-        else if (isMusic(filename))
-            typeStr = "audio/*";
-        else if (isPhoto(filename))
-            typeStr = "image/*";
-        else if (isApk(filename))
-            typeStr = "application/vnd.android.package-archive";
-        else if (isHtm(filename))
-            typeStr = "text/html";
-        else if (isPdf(filename))
-            typeStr = "application/pdf";
-        else if (isPlain(filename))
-            typeStr = "text/plain";
-        else {
-            typeStr = "application/*";
-        }
-        return typeStr;
-    }
     public static int getThumbDeviceIcon(Context c,String device_name){
-        //String internal = c.getString(R.string.memory_device_str);
-        //String sdcard = c.getString(R.string.sdcard_device_str);
-        //String usb = c.getString(R.string.usb_device_str);
         if (device_name.equals("flash")) {
             return R.drawable.memory_default;
         }
@@ -285,33 +139,6 @@ public class FileOp {
             return R.drawable.usb_default;
         }
         return R.drawable.noname_file_default;
-    }
-    public static String getDeviceName(Context c,String filename){
-        String ret_str = null;
-        /*if(filename.equals("/mnt/flash")){
-            ret_str = c.getString(R.string.memory_device_str);
-        }
-        else */if (filename.equals(SD_PATH)) {
-            ret_str = c.getString(R.string.sdcard_device_str);
-        }
-        else if (filename.equals(USB_PATH)) {
-            ret_str = c.getString(R.string.usb_device_str);
-        }
-        return ret_str;
-    }
-    public static String convertDeviceName(Context c,String name) {
-        // TODO Auto-generated method stub
-        String temp_name=null;
-        String internal = c.getString(R.string.memory_device_str);
-        String sdcard = c.getString(R.string.sdcard_device_str);
-        String usb = c.getString(R.string.usb_device_str);
-        /*if(name.equals(internal))
-            temp_name="/mnt/flash";
-        else */if (name.equals(sdcard))
-            temp_name=SD_PATH;
-        else if (name.equals(usb))
-            temp_name=USB_PATH;
-        return temp_name;
     }
     public static boolean deviceExist(String string) {
         // TODO Auto-generated method stub
@@ -368,17 +195,6 @@ public class FileOp {
                 FileBrower.myCursor.close();
             }
         }
-        else if (cur_page.equals("thumbnail")) {
-            if (ThumbnailView.db == null) return false;
-            try {
-                ThumbnailView.myCursor = ThumbnailView.db.getFileMarkByPath(file_path);
-                if (ThumbnailView.myCursor.getCount() > 0) {
-                    return true;
-                }
-            } finally {
-                ThumbnailView.myCursor.close();
-            }
-        }
         else if (cur_page.equals("thumbnail1")) {
             if (ThumbnailView1.db == null) return false;
             try {
@@ -394,22 +210,6 @@ public class FileOp {
     }
 
     public static Bitmap fitSizePic(File f){
-        /* Bitmap bitmap = null;
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        if(f.length()<20480){         //0-20k
-          opts.inSampleSize = 1;
-        }else if(f.length()<51200){   //20-50k
-          opts.inSampleSize = 2;
-        }else if(f.length()<307200){  //50-300k
-          opts.inSampleSize = 4;
-        }else if(f.length()<819200){  //300-800k
-          opts.inSampleSize = 6;
-        }else if(f.length()<1048576){ //800-1024k
-          opts.inSampleSize = 8;
-        }else{
-          opts.inSampleSize = 10;
-        }
-        bitmap = BitmapFactory.decodeFile(f.getPath(), opts);*/
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         Bitmap bitmap = BitmapFactory.decodeFile(f.getPath(), options);
@@ -481,31 +281,13 @@ public class FileOp {
                 try {
                     FileBrower.myCursor = FileBrower.db.getFileMarkByPath(file_path);
                     if (FileBrower.myCursor.getCount() <= 0) {
-                        //Log.i(FileBrower.TAG, "add file: " + file_path);
                         FileBrower.db.addFileMark(file_path, 1);
                     }
                 } finally {
                     FileBrower.myCursor.close();
                 }
             } else {
-                //Log.i(FileBrower.TAG, "remove file: " + file_path);
                 FileBrower.db.deleteFileMark(file_path);
-            }
-        } else if (cur_page.equals("thumbnail")) {
-            if (ThumbnailView.db == null) return;
-            if (status == 1) {
-                try {
-                    ThumbnailView.myCursor = ThumbnailView.db.getFileMarkByPath(file_path);
-                    if (ThumbnailView.myCursor.getCount() <= 0) {
-                        //Log.i(FileBrower.TAG, "add file: " + file_path);
-                        ThumbnailView.db.addFileMark(file_path, 1);
-                    }
-                } finally {
-                    ThumbnailView.myCursor.close();
-                }
-            } else {
-                //Log.i(FileBrower.TAG, "remove file: " + file_path);
-                ThumbnailView.db.deleteFileMark(file_path);
             }
         } else if (cur_page.equals("thumbnail1")) {
             if (ThumbnailView1.db == null) return;
@@ -513,14 +295,12 @@ public class FileOp {
                 try {
                     ThumbnailView1.myCursor = ThumbnailView1.db.getFileMarkByPath(file_path);
                     if (ThumbnailView1.myCursor.getCount() <= 0) {
-                        //Log.i(FileBrower.TAG, "add file: " + file_path);
                         ThumbnailView1.db.addFileMark(file_path, 1);
                     }
                 } finally {
                     ThumbnailView1.myCursor.close();
                 }
             } else {
-                //Log.i(FileBrower.TAG, "remove file: " + file_path);
                 ThumbnailView1.db.deleteFileMark(file_path);
             }
         }
@@ -583,9 +363,6 @@ public class FileOp {
                 if (cur_page.equals("list")) {
                     FileBrower.mProgressHandler.sendMessage(Message.obtain(
                         FileBrower.mProgressHandler, 1, (int)(bytecount * 100 / source.length()), 0));
-                } else if (cur_page.equals("thumbnail")){
-                    ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                        ThumbnailView.mProgressHandler, 1, (int)(bytecount * 100 / source.length()), 0));
                 } else if (cur_page.equals("thumbnail1")){
                     ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                         ThumbnailView1.mProgressHandler, 1, (int)(bytecount * 100 / source.length()), 0));
@@ -614,8 +391,6 @@ public class FileOp {
     }
     public static FileOpReturn pasteSelectedFile(String cur_page) {
         ArrayList<String> fileList = new ArrayList<String>();
-        //long copy_time_start=0, copy_time_end = 0;
-        //copying_file = null;
         copy_cancel = false;
         IsBusy = true;
         if ((file_op_todo != FileOpTodo.TODO_CPY) &&
@@ -623,9 +398,6 @@ public class FileOp {
             if (cur_page.equals("list")) {
                 FileBrower.mProgressHandler.sendMessage(Message.obtain(
                     FileBrower.mProgressHandler, 5));
-            } else if (cur_page.equals("thumbnail")) {
-                ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                    ThumbnailView.mProgressHandler, 5));
             } else if (cur_page.equals("thumbnail1")) {
                 ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                     ThumbnailView1.mProgressHandler, 5));
@@ -635,7 +407,7 @@ public class FileOp {
         }
 
         if (cur_page.equals("list")) {
-            if (FileBrower.cur_path.startsWith(ROOT_PATH)) {
+            if (FileBrower.cur_path.startsWith(FileListManager.STORAGE)) {
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
                     FileBrower.mProgressHandler.sendMessage(Message.obtain(
                         FileBrower.mProgressHandler, 7));
@@ -650,7 +422,7 @@ public class FileOp {
                 return FileOpReturn.ERR;
             }
         } else if (cur_page.equals("thumbnail1")) {
-            if (ThumbnailView1.cur_path.startsWith(ROOT_PATH)) {
+            if (ThumbnailView1.cur_path.startsWith(FileListManager.STORAGE)) {
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
                     ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                         ThumbnailView1.mProgressHandler, 7));
@@ -674,14 +446,6 @@ public class FileOp {
                         fileList.add(FileBrower.myCursor.getColFilePath());
                     }
                 }
-            } else if (cur_page.equals("thumbnail")) {
-                ThumbnailView.myCursor = ThumbnailView.db.getFileMark();
-                if (ThumbnailView.myCursor.getCount() > 0) {
-                    for (int i=0; i<ThumbnailView.myCursor.getCount(); i++) {
-                        ThumbnailView.myCursor.moveToPosition(i);
-                        fileList.add(ThumbnailView.myCursor.getColFilePath());
-                    }
-                }
             } else if (cur_page.equals("thumbnail1")) {
                 ThumbnailView1.myCursor = ThumbnailView1.db.getFileMark();
                 if (ThumbnailView1.myCursor.getCount() > 0) {
@@ -694,9 +458,6 @@ public class FileOp {
         } finally {
             if (cur_page.equals("list")) {
                 FileBrower.myCursor.close();
-            }
-            else if (cur_page.equals("thumbnail")) {
-                ThumbnailView.myCursor.close();
             } else if (cur_page.equals("thumbnail1")) {
                 ThumbnailView1.myCursor.close();
             }
@@ -706,9 +467,6 @@ public class FileOp {
             if (cur_page.equals("list")) {
                 FileBrower.mProgressHandler.sendMessage(Message.obtain(
                     FileBrower.mProgressHandler, 3));
-            } else if (cur_page.equals("thumbnail")) {
-                ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                    ThumbnailView.mProgressHandler, 3));
             } else if (cur_page.equals("thumbnail1")) {
                 ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                     ThumbnailView1.mProgressHandler, 3));
@@ -735,9 +493,6 @@ public class FileOp {
                     if (cur_page.equals("list")) {
                         FileBrower.mProgressHandler.sendMessage(Message.obtain(
                             FileBrower.mProgressHandler, 9));
-                    } else if (cur_page.equals("thumbnail")) {
-                        ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                            ThumbnailView.mProgressHandler, 9));
                     } else if (cur_page.equals("thumbnail1")) {
                         ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                             ThumbnailView1.mProgressHandler, 9));
@@ -747,7 +502,6 @@ public class FileOp {
                 }
 
                 if (file.exists()) {
-                    //Log.i(FileBrower.TAG, "paste file: " + name);
                     if (cur_page.equals("list")) {
                         if (file.length() > checkFreeSpace(FileBrower.cur_path)) {
                             FileBrower.mProgressHandler.sendMessage(Message.obtain(
@@ -780,13 +534,9 @@ public class FileOp {
                                 return FileOpReturn.ERR;
                             }
                             else {
-                                //copying_file=new File(FileBrower.cur_path+file);
                                 File file_new = null;
-                                //Log.i(FileBrower.TAG, "copy and paste file: " + name);
                                 if (cur_page.equals("list")) {
                                     file_new = new File(FileBrower.cur_path + File.separator + file.getName());
-                                } else if (cur_page.equals("thumbnail")) {
-                                    file_new = new File(ThumbnailView.cur_path + File.separator + file.getName());
                                 } else if (cur_page.equals("thumbnail1")) {
                                     file_new = new File(ThumbnailView1.cur_path + File.separator + file.getName());
                                 }
@@ -796,8 +546,6 @@ public class FileOp {
                                         .format(Calendar.getInstance().getTime());
                                     if (cur_page.equals("list")) {
                                         file_new = new File(FileBrower.cur_path + File.separator + date + file.getName());
-                                    } else if (cur_page.equals("thumbnail")) {
-                                        file_new = new File(ThumbnailView.cur_path + File.separator + date + file.getName());
                                     } else if (cur_page.equals("thumbnail1")) {
                                         file_new = new File(ThumbnailView1.cur_path + File.separator + date + file.getName());
                                     }
@@ -818,9 +566,6 @@ public class FileOp {
                                         if (cur_page.equals("list")) {
                                             FileBrower.mProgressHandler.sendMessage(Message.obtain(
                                                 FileBrower.mProgressHandler, 9));
-                                        } else if (cur_page.equals("thumbnail")) {
-                                            ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                                                ThumbnailView.mProgressHandler, 9));
                                         } else if (cur_page.equals("thumbnail1")) {
                                             ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                                                 ThumbnailView1.mProgressHandler, 9));
@@ -838,11 +583,8 @@ public class FileOp {
                     else {
                         try {
                             File file_new = null;
-                            //Log.i(FileBrower.TAG, "copy and paste file: " + name);
                             if (cur_page.equals("list")) {
                                 file_new = new File(FileBrower.cur_path + File.separator + file.getName());
-                            } else if (cur_page.equals("thumbnail")) {
-                                file_new = new File(ThumbnailView.cur_path + File.separator + file.getName());
                             } else if (cur_page.equals("thumbnail1")) {
                                 file_new = new File(ThumbnailView1.cur_path + File.separator + file.getName());
                             }
@@ -852,27 +594,21 @@ public class FileOp {
                                     .format(Calendar.getInstance().getTime());
                                 if (cur_page.equals("list")) {
                                     file_new = new File(FileBrower.cur_path + File.separator + date + file.getName());
-                                } else if (cur_page.equals("thumbnail")) {
-                                    file_new = new File(ThumbnailView.cur_path + File.separator + date + file.getName());
                                 } else if (cur_page.equals("thumbnail1")) {
                                     file_new = new File(ThumbnailView1.cur_path + File.separator + date + file.getName());
                                 }
                             }
 
                             if (!file_new.exists()) {
-                                //Log.i(FileBrower.TAG, "copy to file: " + file_new.getPath());
                                 file_new.createNewFile();
                                 copying_file = file_new;
                                 try {
-                                    //copy_time_start = Calendar.getInstance().getTimeInMillis();
                                     if (file.length() < 1024*1024*10)
                                         nioBufferCopy(file, file_new, cur_page, 4);
                                     else if (file.length() < 1024*1024*100)
                                         nioBufferCopy(file, file_new, cur_page, 1024);
                                     else
                                         nioBufferCopy(file, file_new, cur_page, 1024*10);
-                                    //nioTransferCopy(file, file_new);
-                                    //copy_time_end = Calendar.getInstance().getTimeInMillis();
                                     if (!copy_cancel) {
                                         if (file_op_todo == FileOpTodo.TODO_CUT)
                                             file.delete();
@@ -884,9 +620,6 @@ public class FileOp {
                                         if (cur_page.equals("list")) {
                                             FileBrower.mProgressHandler.sendMessage(Message.obtain(
                                                 FileBrower.mProgressHandler, 9));
-                                        } else if (cur_page.equals("thumbnail")) {
-                                            ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                                                ThumbnailView.mProgressHandler, 9));
                                         } else if (cur_page.equals("thumbnail1")) {
                                             ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                                                 ThumbnailView1.mProgressHandler, 9));
@@ -905,9 +638,6 @@ public class FileOp {
                         if (cur_page.equals("list")) {
                             FileBrower.mProgressHandler.sendMessage(Message.obtain(
                                 FileBrower.mProgressHandler, 2, (i+1) * 100 / fileList.size(), 0));
-                        } else if (cur_page.equals("thumbnail")) {
-                            ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                                ThumbnailView.mProgressHandler, 2, (i+1) * 100 / fileList.size(), 0));
                         } else if (cur_page.equals("thumbnail1")) {
                             ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
                                 ThumbnailView1.mProgressHandler, 2, (i+1) * 100 / fileList.size(), 0));
@@ -927,9 +657,6 @@ public class FileOp {
                 IsBusy = false;
                 return FileOpReturn.ERR;
             }
-
-            //Log.i("wxl","curPathBefCopy:"+curPathBefCopy);
-            //Log.i("wxl","curPathAftCopy:"+curPathAftCopy);
 
             if ((copy_cancel)||!(curPathBefCopy.equals(curPathAftCopy))) {
                 if (copying_file.exists()) {
@@ -963,14 +690,7 @@ public class FileOp {
                 FileBrower.mProgressHandler.sendMessage(msg);
                 IsBusy = false;
                 return FileOpReturn.SUCCESS;
-            } else if (cur_page.equals("thumbnail")) {
-                msg = Message.obtain(ThumbnailView.mProgressHandler, 4);
-                data.putStringArrayList("file_name_list", fileList);
-                msg.setData(data);
-                ThumbnailView.mProgressHandler.sendMessage(msg);
-                IsBusy = false;
-                return FileOpReturn.SUCCESS;
-           } else if (cur_page.equals("thumbnail1")) {
+            } else if (cur_page.equals("thumbnail1")) {
                 msg = Message.obtain(ThumbnailView1.mProgressHandler, 4);
                 data.putStringArrayList("file_name_list", fileList);
                 msg.setData(data);
@@ -982,11 +702,6 @@ public class FileOp {
             if (cur_page.equals("list")) {
                 FileBrower.mProgressHandler.sendMessage(Message.obtain(
                     FileBrower.mProgressHandler, 5));
-                IsBusy = false;
-                return FileOpReturn.ERR;
-            } else if (cur_page.equals("thumbnail")) {
-                ThumbnailView.mProgressHandler.sendMessage(Message.obtain(
-                    ThumbnailView.mProgressHandler, 5));
                 IsBusy = false;
                 return FileOpReturn.ERR;
             } else if (cur_page.equals("thumbnail1")) {
@@ -1012,14 +727,6 @@ public class FileOp {
                         fileList.add(FileBrower.myCursor.getColFilePath());
                     }
                 }
-            } else if (cur_page.equals("thumbnail")) {
-                ThumbnailView.myCursor = ThumbnailView.db.getFileMark();
-                if (ThumbnailView.myCursor.getCount() > 0) {
-                    for (int i=0; i<ThumbnailView.myCursor.getCount(); i++) {
-                        ThumbnailView.myCursor.moveToPosition(i);
-                        fileList.add(ThumbnailView.myCursor.getColFilePath());
-                    }
-                }
             } else if (cur_page.equals("thumbnail1")) {
                 ThumbnailView1.myCursor = ThumbnailView1.db.getFileMark();
                 if (ThumbnailView1.myCursor.getCount() > 0) {
@@ -1032,8 +739,6 @@ public class FileOp {
         } finally {
             if (cur_page.equals("list")) {
                 FileBrower.myCursor.close();
-            } else if (cur_page.equals("thumbnail")) {
-                ThumbnailView.myCursor.close();
             } else if (cur_page.equals("thumbnail1")) {
                 ThumbnailView1.myCursor.close();
             }
@@ -1052,7 +757,7 @@ public class FileOp {
                                 IsDelSuccess = file.delete();
                             }
                         } else {
-                            if (name.startsWith(ROOT_PATH)) {
+                            if (name.startsWith(FileListManager.STORAGE)) {
                                 if (!(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY))) {
                                     if (file.isDirectory()) {
                                         FileUtils.deleteDirectory(file);
@@ -1224,23 +929,10 @@ public class FileOp {
                 }
             }
         }
-
-        /*if (null != path) {
-            String name=null;
-            int index=-1;
-            index=path.lastIndexOf("/");
-            if (index >= 0) {
-                name=path.substring(index);
-            }
-        }
-        Log.i(FileBrower.TAG,"name :"+name);
-        return name;*/
-
-        Log.i(FileBrower.TAG,"path :"+path);
         return path;
     }
 
-    public static void updatePathShow(Activity activity, StorageManager storageManager, String path, boolean isThumbnailView) {
+    public static void updatePathShow(Activity activity, FileListManager fileListManager, String path, boolean isThumbnailView) {
         TextView tv;
         boolean pathSetted = false;
         if (isThumbnailView) {
@@ -1249,53 +941,38 @@ public class FileOp {
         else {
             tv = (TextView) activity.findViewById(R.id.path);
         }
-        if (path.equals(ROOT_PATH))
+        if (path.equals(FileListManager.STORAGE))
             tv.setText(activity.getText(R.string.rootDevice));
         else {
             int idx = -1;
             int len;
             String pathDest;
             String pathLast;
-            String pathTmp;
-            List<VolumeInfo> volumes = storageManager.getVolumes();
-            Collections.sort(volumes, VolumeInfo.getDescriptionComparator());
-            for (VolumeInfo vol : volumes) {
-                if (vol != null && vol.isMountedReadable() && vol.getType() == VolumeInfo.TYPE_PUBLIC) {
-                    pathTmp = vol.getPath().getAbsolutePath();
-                    idx = path.indexOf(pathTmp);
-                    if (idx != -1) {
-                        len = pathTmp.length();
-                        pathLast = path.substring(idx + len);
-                        pathDest = storageManager.getBestVolumeDescription(vol) + pathLast;
-                        tv.setText(pathDest);
-                        pathSetted = true;
-                        break;
+            String pathTmp = null;
+            List<Map<String, Object>> tmpList = fileListManager.getDevices();
+            int tCount = tmpList.size();
+            for (int i = 0; i < tCount; i++) {
+                Map<String, Object> tmap = tmpList.get(i);
+                Iterator iterator = tmap.keySet().iterator();
+                while (iterator.hasNext()) {
+                    String string = (String) iterator.next();
+                    if (string.equals(KEY_PATH)) {
+                        pathTmp = (String)tmap.get(string);
                     }
                 }
+                idx = path.indexOf(pathTmp);
+                if (idx != -1) {
+                    len = pathTmp.length();
+                    pathLast = path.substring(idx + len);
+                    pathDest = pathTmp + pathLast;
+                    tv.setText(pathDest);
+                    pathSetted = true;
+                    break;
+                }
             }
-
             if (!pathSetted) {
                 tv.setText(path);
             }
         }
     }
-
-    public static boolean isPlain(String filename) {
-        String name = filename.toLowerCase();
-        for (String ext : plain_extensions) {
-            if (name.endsWith(ext))
-                return true;
-        }
-        return false;
-    }
-
-    public static final String[] plain_extensions = {".txt",
-        ".c",
-        ".cpp",
-        ".java",
-        ",conf",
-        ".h",
-        ".log",
-        ".rc",
-        };
 }

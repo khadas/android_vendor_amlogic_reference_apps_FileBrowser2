@@ -21,16 +21,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.os.Environment;
+import com.droidlogic.app.FileListManager;
 
 public class ThumbnailOpUtils {
-
-    private static final String ROOT_PATH = "/storage";
-	private static final String SHEILD_EXT_STOR = Environment.getExternalStorageDirectory().getPath()+"/external_storage"; //"/storage/sdcard0/external_storage";
-	private static final String NAND_PATH = Environment.getExternalStorageDirectory().getPath();//"/storage/sdcard0";
-	private static final String SD_PATH = "/storage/external_storage/sdcard1";
-	private static final String USB_PATH ="/storage/external_storage";
-	private static final String SATA_PATH ="/storage/external_storage/sata";
-	
 	public static void stopThumbnailSanner(Context context) {
 		context.stopService(new Intent(context, ThumbnailScannerService.class));
 		//Log.w("stopThumbnailSanner", "..................");
@@ -58,11 +51,8 @@ public class ThumbnailOpUtils {
 	
 	public static void updateThumbnailsForDev(Context context, String dev_path) {
 		if (dev_path != null) {
-			if (!dev_path.equals(NAND_PATH) &&
-				!dev_path.equals(SD_PATH) &&
-				!dev_path.equals(USB_PATH) &&
-				!dev_path.equals(SATA_PATH) &&
-				!dev_path.startsWith(ROOT_PATH)) 				
+			if (!dev_path.equals(FileListManager.NAND) &&
+				!dev_path.startsWith(FileListManager.STORAGE))
 					return;			
 			
 			Bundle args = new Bundle();
@@ -75,11 +65,8 @@ public class ThumbnailOpUtils {
 	
 	public static void updateThumbnailsForDir(Context context, String dir_path) {
 		if (dir_path != null) {
-			if (!dir_path.equals(NAND_PATH) &&
-				!dir_path.equals(SD_PATH) &&
-				!dir_path.equals(USB_PATH) &&
-				!dir_path.equals(SATA_PATH) &&
-				!dir_path.startsWith(ROOT_PATH)) 						
+			if (!dir_path.equals(FileListManager.NAND) &&
+				!dir_path.startsWith(FileListManager.STORAGE))
 				return;	
 			
 			Bundle args = new Bundle();

@@ -165,7 +165,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedInputStream</code>.
-     * 
+     *
      * @param input  the <code>InputStream</code> to read from
      * @return the requested byte array
      * @throws NullPointerException if the input is null
@@ -183,7 +183,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedReader</code>.
-     * 
+     *
      * @param input  the <code>Reader</code> to read from
      * @return the requested byte array
      * @throws NullPointerException if the input is null
@@ -204,7 +204,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedReader</code>.
-     * 
+     *
      * @param input  the <code>Reader</code> to read from
      * @param encoding  the encoding to use, null means platform default
      * @return the requested byte array
@@ -224,7 +224,7 @@ public class IOUtils {
      * using the default character encoding of the platform.
      * <p>
      * This is the same as {@link String#getBytes()}.
-     * 
+     *
      * @param input  the <code>String</code> to convert
      * @return the requested byte array
      * @throws NullPointerException if the input is null
@@ -243,7 +243,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedInputStream</code>.
-     * 
+     *
      * @param is  the <code>InputStream</code> to read from
      * @return the requested character array
      * @throws NullPointerException if the input is null
@@ -265,7 +265,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedInputStream</code>.
-     * 
+     *
      * @param is  the <code>InputStream</code> to read from
      * @param encoding  the encoding to use, null means platform default
      * @return the requested character array
@@ -285,7 +285,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedReader</code>.
-     * 
+     *
      * @param input  the <code>Reader</code> to read from
      * @return the requested character array
      * @throws NullPointerException if the input is null
@@ -306,7 +306,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedInputStream</code>.
-     * 
+     *
      * @param input  the <code>InputStream</code> to read from
      * @return the requested String
      * @throws NullPointerException if the input is null
@@ -327,7 +327,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedInputStream</code>.
-     * 
+     *
      * @param input  the <code>InputStream</code> to read from
      * @param encoding  the encoding to use, null means platform default
      * @return the requested String
@@ -346,7 +346,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedReader</code>.
-     * 
+     *
      * @param input  the <code>Reader</code> to read from
      * @return the requested String
      * @throws NullPointerException if the input is null
@@ -361,7 +361,7 @@ public class IOUtils {
     /**
      * Get the contents of a <code>byte[]</code> as a String
      * using the default character encoding of the platform.
-     * 
+     *
      * @param input the byte array to read from
      * @return the requested String
      * @throws NullPointerException if the input is null
@@ -378,7 +378,7 @@ public class IOUtils {
      * <p>
      * Character encoding names can be found at
      * <a href="http://www.iana.org/assignments/character-sets">IANA</a>.
-     * 
+     *
      * @param input the byte array to read from
      * @param encoding  the encoding to use, null means platform default
      * @return the requested String
@@ -528,7 +528,7 @@ public class IOUtils {
      * @throws IOException if an I/O error occurs, such as if the encoding is invalid
      * @since Commons IO 1.2
      */
- /*   public static LineIterator lineIterator(InputStream input, String encoding) 
+ /*   public static LineIterator lineIterator(InputStream input, String encoding)
                      throws IOException {
         Reader reader = null;
         if (encoding == null) {
@@ -575,7 +575,7 @@ public class IOUtils {
     //-----------------------------------------------------------------------
     /**
      * Writes bytes from a <code>byte[]</code> to an <code>OutputStream</code>.
-     * 
+     *
      * @param data  the byte array to write, do not modify during output,
      * null ignored
      * @param output  the <code>OutputStream</code> to write to
@@ -595,7 +595,7 @@ public class IOUtils {
      * using the default character encoding of the platform.
      * <p>
      * This method uses {@link String#String(byte[])}.
-     * 
+     *
      * @param data  the byte array to write, do not modify during output,
      * null ignored
      * @param output  the <code>Writer</code> to write to
@@ -617,7 +617,7 @@ public class IOUtils {
      * <a href="http://www.iana.org/assignments/character-sets">IANA</a>.
      * <p>
      * This method uses {@link String#String(byte[], String)}.
-     * 
+     *
      * @param data  the byte array to write, do not modify during output,
      * null ignored
      * @param output  the <code>Writer</code> to write to
@@ -642,7 +642,7 @@ public class IOUtils {
     /**
      * Writes chars from a <code>char[]</code> to a <code>Writer</code>
      * using the default character encoding of the platform.
-     * 
+     *
      * @param data  the char array to write, do not modify during output,
      * null ignored
      * @param output  the <code>Writer</code> to write to
@@ -662,7 +662,7 @@ public class IOUtils {
      * <p>
      * This method uses {@link String#String(char[])} and
      * {@link String#getBytes()}.
-     * 
+     *
      * @param data  the char array to write, do not modify during output,
      * null ignored
      * @param output  the <code>OutputStream</code> to write to
@@ -686,7 +686,7 @@ public class IOUtils {
      * <p>
      * This method uses {@link String#String(char[])} and
      * {@link String#getBytes(String)}.
-     * 
+     *
      * @param data  the char array to write, do not modify during output,
      * null ignored
      * @param output  the <code>OutputStream</code> to write to
@@ -710,7 +710,7 @@ public class IOUtils {
     //-----------------------------------------------------------------------
     /**
      * Writes chars from a <code>String</code> to a <code>Writer</code>.
-     * 
+     *
      * @param data  the <code>String</code> to write, null ignored
      * @param output  the <code>Writer</code> to write to
      * @throws NullPointerException if output is null
@@ -729,7 +729,7 @@ public class IOUtils {
      * platform.
      * <p>
      * This method uses {@link String#getBytes()}.
-     * 
+     *
      * @param data  the <code>String</code> to write, null ignored
      * @param output  the <code>OutputStream</code> to write to
      * @throws NullPointerException if output is null
@@ -751,7 +751,7 @@ public class IOUtils {
      * <a href="http://www.iana.org/assignments/character-sets">IANA</a>.
      * <p>
      * This method uses {@link String#getBytes(String)}.
-     * 
+     *
      * @param data  the <code>String</code> to write, null ignored
      * @param output  the <code>OutputStream</code> to write to
      * @param encoding  the encoding to use, null means platform default
@@ -774,7 +774,7 @@ public class IOUtils {
     //-----------------------------------------------------------------------
     /**
      * Writes chars from a <code>StringBuffer</code> to a <code>Writer</code>.
-     * 
+     *
      * @param data  the <code>StringBuffer</code> to write, null ignored
      * @param output  the <code>Writer</code> to write to
      * @throws NullPointerException if output is null
@@ -794,7 +794,7 @@ public class IOUtils {
      * platform.
      * <p>
      * This method uses {@link String#getBytes()}.
-     * 
+     *
      * @param data  the <code>StringBuffer</code> to write, null ignored
      * @param output  the <code>OutputStream</code> to write to
      * @throws NullPointerException if output is null
@@ -816,7 +816,7 @@ public class IOUtils {
      * <a href="http://www.iana.org/assignments/character-sets">IANA</a>.
      * <p>
      * This method uses {@link String#getBytes(String)}.
-     * 
+     *
      * @param data  the <code>StringBuffer</code> to write, null ignored
      * @param output  the <code>OutputStream</code> to write to
      * @param encoding  the encoding to use, null means platform default
@@ -944,7 +944,7 @@ public class IOUtils {
      * <code>-1</code> after the copy has completed since the correct
      * number of bytes cannot be returned as an int. For large streams
      * use the <code>copyLarge(InputStream, OutputStream)</code> method.
-     * 
+     *
      * @param input  the <code>InputStream</code> to read from
      * @param output  the <code>OutputStream</code> to write to
      * @return the number of bytes copied
@@ -967,7 +967,7 @@ public class IOUtils {
      * <p>
      * This method buffers the input internally, so there is no need to use a
      * <code>BufferedInputStream</code>.
-     * 
+     *
      * @param input  the <code>InputStream</code> to read from
      * @param output  the <code>OutputStream</code> to write to
      * @return the number of bytes copied
