@@ -77,6 +77,10 @@ import android.os.Environment;
 import android.os.storage.StorageVolume;
 import android.os.storage.VolumeInfo;
 import android.content.BroadcastReceiver;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+
 import java.util.Iterator;
 
 import com.droidlogic.FileBrower.FileBrowerDatabase.FileMarkCursor;
@@ -137,6 +141,8 @@ public class FileBrower extends Activity {
     private int item_position_selected, item_position_first, item_position_last;
     private int fromtop_piexl;
     private boolean isInFileBrowserView=false;
+
+    private static final int REQUEST_CODE_ASK_PERMISSIONS = 2;
 
     String open_mode[] = {"movie","music","photo","packageInstall"};
 
@@ -671,6 +677,23 @@ public class FileBrower extends Activity {
         db.close();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "permission is granted");
+                } else {
+                    Log.d(TAG, "permission is denied");
+                    return;
+                }
+                break;
+            }
+        }
+    }
+
     protected void openFile(File f) {
         // TODO Auto-generated method stub
         Intent intent = new Intent();
@@ -742,6 +765,14 @@ public class FileBrower extends Activity {
 
     private List<Map<String, Object>> getDeviceListData() {
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_CODE_ASK_PERMISSIONS);
+            return null;
+        }
+
         list = mFileListManager.getDevices();
         int fileCnt = list.size();
         for (int i = 0; i < fileCnt; i++) {
