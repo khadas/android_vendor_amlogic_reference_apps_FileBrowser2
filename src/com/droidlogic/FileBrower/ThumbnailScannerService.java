@@ -19,6 +19,7 @@ package com.droidlogic.FileBrower;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import android.provider.MediaStore.Images;
 
 import android.app.Service;
@@ -252,7 +253,7 @@ public class ThumbnailScannerService extends Service implements Runnable {
                 }
                 Bitmap bitmap = null;
                 Bitmap thumb = null;
-                bitmap = ThumbnailUtils.createImageThumbnail(file_path,
+                bitmap = createImageThumbnail(file_path,
                 Images.Thumbnails.MINI_KIND);
                 if (bitmap != null) {
                     thumb = ThumbnailUtils.extractThumbnail(bitmap, 96, 96);
@@ -279,6 +280,18 @@ public class ThumbnailScannerService extends Service implements Runnable {
             }
         }
         return count;
+    }
+
+    public Bitmap createImageThumbnail(String file_path,int kind) {
+        try {
+            Class<?> sm = Class.forName("android.media.ThumbnailUtils");
+            Method createThumbnail = sm.getMethod("createImageThumbnail", String.class,int.class);
+            Bitmap bitmap = (Bitmap) createThumbnail.invoke(null, file_path, kind);
+            return bitmap;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private int createThumbnailsInDir(String dir_path) {

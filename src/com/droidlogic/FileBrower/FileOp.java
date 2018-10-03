@@ -41,7 +41,7 @@ import android.os.Environment;
 import android.os.Message;
 import android.os.StatFs;
 ///import android.os.storage.StorageManager;
-import android.os.storage.VolumeInfo;
+//import android.os.storage.VolumeInfo;
 import android.widget.TextView;
 import android.util.Log;
 import android.net.Uri;

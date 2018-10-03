@@ -75,7 +75,7 @@ import android.os.PowerManager;
 import android.content.res.Configuration;
 import android.os.Environment;
 import android.os.storage.StorageVolume;
-import android.os.storage.VolumeInfo;
+//import android.os.storage.VolumeInfo;
 import android.content.BroadcastReceiver;
 
 import android.Manifest;
