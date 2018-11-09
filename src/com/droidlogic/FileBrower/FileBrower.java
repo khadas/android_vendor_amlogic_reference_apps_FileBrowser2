@@ -770,7 +770,7 @@ public class FileBrower extends Activity {
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_CODE_ASK_PERMISSIONS);
-            return null;
+            return list;
         }
 
         list = mFileListManager.getDevices();
