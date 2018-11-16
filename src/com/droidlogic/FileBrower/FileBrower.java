@@ -607,7 +607,7 @@ public class FileBrower extends Activity {
         });
 
         /* btn_edit_listener */
-        Button btn_edit = (Button) findViewById(R.id.btn_edit);
+        /*Button btn_edit = (Button) findViewById(R.id.btn_edit);
         btn_edit.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!cur_path.equals(FileListManager.STORAGE))
@@ -618,7 +618,7 @@ public class FileBrower extends Activity {
                     Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        });*/
 
         /* btn_sort_listener */
         Button btn_sort = (Button) findViewById(R.id.btn_sort);

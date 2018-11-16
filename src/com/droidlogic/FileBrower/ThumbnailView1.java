@@ -868,7 +868,7 @@ public class ThumbnailView1 extends Activity{
         });
 
         /*edit button*/
-        Button btn_thumbedit = (Button) findViewById(R.id.btn_thumbedit);
+        /*Button btn_thumbedit = (Button) findViewById(R.id.btn_thumbedit);
         btn_thumbedit.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!cur_path.equals(FileListManager.STORAGE))
@@ -879,7 +879,7 @@ public class ThumbnailView1 extends Activity{
                         Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        });*/
 
         /* btn_help_listener */
         Button btn_thumbhelp = (Button) findViewById(R.id.btn_thumbhelp);
