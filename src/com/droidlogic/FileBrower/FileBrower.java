@@ -1421,11 +1421,11 @@ public class FileBrower extends Activity {
                         File file1 = new File((String) object1.get(KEY_PATH));
                         File file2 = new File((String) object2.get(KEY_PATH));
 
-                        if (file1.isFile() && file2.isFile() || file1.isDirectory() && file2.isDirectory()) {
+                        if ((file1.isFile() && file2.isFile()) || (file1.isDirectory() && file2.isDirectory())) {
                             return ((String) object1.get(KEY_NAME)).toLowerCase()
                                 .compareTo(((String) object2.get(KEY_NAME)).toLowerCase());
                         } else {
-                            return file1.isFile() ? 1 : -1;
+                            return file2.isFile() ? -1 : 1;
                         }
                     }
                 });
