@@ -807,11 +807,11 @@ public class ThumbnailView1 extends Activity{
                     }
                     else {
                         if (!cur_path.equals(FileListManager.STORAGE)) {
-                            if (item.get("item_sel").equals(R.drawable.item_img_unsel)) {
+                            if ((R.drawable.item_img_unsel).equals(item.get("item_sel"))) {
                                 FileOp.updateFileStatus(file_path, 1,"thumbnail1");
                                 item.put("item_sel", R.drawable.item_img_sel);
                             }
-                            else if (item.get("item_sel").equals(R.drawable.item_img_sel)) {
+                            else if ((R.drawable.item_img_sel).equals(item.get("item_sel"))) {
                                 FileOp.updateFileStatus(file_path, 0,"thumbnail1");
                                 item.put("item_sel", R.drawable.item_img_unsel);
                             }
