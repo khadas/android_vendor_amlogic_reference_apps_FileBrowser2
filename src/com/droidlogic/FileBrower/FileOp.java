@@ -188,11 +188,13 @@ public class FileOp {
             if (FileBrower.db == null) return false;
             try {
                 FileBrower.myCursor = FileBrower.db.getFileMarkByPath(file_path);
-                if (FileBrower.myCursor.getCount() > 0) {
+                if (FileBrower.myCursor != null && FileBrower.myCursor.getCount() > 0) {
                     return true;
                 }
             } finally {
-                FileBrower.myCursor.close();
+                if (FileBrower.myCursor != null) {
+                    FileBrower.myCursor.close();
+                }
             }
         }
         else if (cur_page.equals("thumbnail1")) {
