@@ -124,7 +124,7 @@ public class ThumbnailView1 extends Activity{
     private boolean isInFileBrowserView=false;
     private FileListManager mFileListManager;
 
-    Comparator  mFileComparator = new Comparator<File>(){
+    Comparator  mFileComparator = new Comparator<File>() {
         @Override
         public int compare(File o1, File o2) {
             if (o1.isDirectory() && o2.isFile())
@@ -181,7 +181,7 @@ public class ThumbnailView1 extends Activity{
         for (int i = 0; i < fileCnt; i++) {
             Map<String, Object> fMap = list.get(i);
             tmpPath = (String)fMap.get(KEY_PATH);
-            if (tmpPath !=null) {
+            if (tmpPath != null) {
                 File file = new File(tmpPath);
                 String temp_name = FileOp.getShortName(file.getAbsolutePath());
                 fMap.put(KEY_NAME, temp_name);
@@ -206,7 +206,7 @@ public class ThumbnailView1 extends Activity{
                     }
                 }
                 long file_date = file.lastModified();
-                fMap.put("file_date", file_date);	//use for sorting
+                fMap.put("file_date", file_date);   //use for sorting
                 long file_size = file.length();
                 fMap.put("file_size", file_size);       //use for sorting
             }
@@ -247,7 +247,7 @@ public class ThumbnailView1 extends Activity{
         for (int i = 0; i < fileCnt; i++) {
             Map<String, Object> fMap = list.get(i);
             tmpPath = (String)fMap.get(KEY_PATH);
-            if (tmpPath !=null) {
+            if (tmpPath != null) {
                 File file = new File(tmpPath);
                 String temp_name = FileOp.getShortName(file.getAbsolutePath());
                 fMap.put(KEY_NAME, temp_name);
@@ -272,7 +272,7 @@ public class ThumbnailView1 extends Activity{
                     }
                 }
                 long file_date = file.lastModified();
-                fMap.put(KEY_DATE, file_date);	//use for sorting
+                fMap.put(KEY_DATE, file_date);  //use for sorting
                 long file_size = file.length();
                 fMap.put(KEY_SIZE, file_size);       //use for sorting
             }
@@ -440,10 +440,10 @@ public class ThumbnailView1 extends Activity{
                 }
                 FileOp.cleanFileMarks("thumbnail1");
             }
-            else if(action.equals(Intent.ACTION_SCREEN_OFF)) {
-                if(sort_dialog != null)
+            else if (action.equals(Intent.ACTION_SCREEN_OFF)) {
+                if (sort_dialog != null)
                     sort_dialog.dismiss();
-                if(help_dialog != null)
+                if (help_dialog != null)
                     help_dialog.dismiss();
             }
         }
@@ -499,7 +499,7 @@ public class ThumbnailView1 extends Activity{
                 mMediaScannerRunning = true;
         }
 
-        if(mListLoaded == true) {
+        if (mListLoaded == true) {
             mListLoaded = false;
         }
 
@@ -527,10 +527,10 @@ public class ThumbnailView1 extends Activity{
         if (load_dialog != null)
             load_dialog.dismiss();
 
-        if(mListLoaded==true)
+        if (mListLoaded == true)
             mListLoaded = false;
 
-        if(!local_mode){
+        if (!local_mode) {
             db.deleteAllFileMark();
         }
         db.close();
@@ -542,7 +542,7 @@ public class ThumbnailView1 extends Activity{
         setContentView(R.layout.thumbnail);
         mFileListManager = new FileListManager(this);
         Bundle bundle = this.getIntent().getExtras();
-        if(!bundle.getString("sort_flag").equals("")){
+        if (!bundle.getString("sort_flag").equals("")) {
             lv_sort_flag=bundle.getString("sort_flag");
         }
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
@@ -588,7 +588,7 @@ public class ThumbnailView1 extends Activity{
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
 
-                if(false==isInFileBrowserView)
+                if (false == isInFileBrowserView)
                     return;
 
                 ProgressBar pb = null;
@@ -598,25 +598,25 @@ public class ThumbnailView1 extends Activity{
                     tvForPaste=(TextView)edit_dialog.findViewById(R.id.text_view_paste);
                 }
 
-                switch(msg.what) {
-                    case 0: 	//set invisible
-                        if ((edit_dialog != null) && (pb != null)&&(tvForPaste!=null)) {
+                switch (msg.what) {
+                    case 0:     //set invisible
+                        if ((edit_dialog != null) && (pb != null) && (tvForPaste != null)) {
                             pb.setVisibility(View.INVISIBLE);
                             tvForPaste.setVisibility(View.GONE);
                         }
                     break;
-                    case 1:		//set progress_bar1
-                        if ((edit_dialog != null) && (pb != null)&&(tvForPaste!=null)) {
+                    case 1:     //set progress_bar1
+                        if ((edit_dialog != null) && (pb != null) && (tvForPaste != null)) {
                             pb.setProgress(msg.arg1);
                         }
                     break;
-                    case 2:		//set progress_bar2
+                    case 2:     //set progress_bar2
                         if ((edit_dialog != null) && (pb != null)) {
                             pb.setSecondaryProgress(msg.arg1);
                         }
                     break;
-                    case 3:		//set visible
-                        if ((edit_dialog != null) && (pb != null)&&(tvForPaste!=null)) {
+                    case 3:     //set visible
+                        if ((edit_dialog != null) && (pb != null) && (tvForPaste != null)) {
                             pb.setProgress(0);
                             pb.setSecondaryProgress(0);
                             pb.setVisibility(View.VISIBLE);
@@ -625,7 +625,7 @@ public class ThumbnailView1 extends Activity{
                             tvForPaste.setText(getText(R.string.edit_dialog_paste_file)+"\n"+FileOp.getMarkFileName("thumbnail1"));
                         }
                     break;
-                    case 4:		//file paste ok
+                    case 4:     //file paste ok
                         updateThumbnials();
 
                         db.deleteAllFileMark();
@@ -644,12 +644,12 @@ public class ThumbnailView1 extends Activity{
                         if (mWakeLock.isHeld())
                             mWakeLock.release();
 
-                        if (tvForPaste!=null) {
+                        if (tvForPaste != null) {
                             tvForPaste.setText("");
                             tvForPaste.setVisibility(View.GONE);
                         }
                     break;
-                    case 5:		//file paste err
+                    case 5:     //file paste err
                         updateThumbnials();
                         Toast.makeText(ThumbnailView1.this,
                         getText(R.string.Toast_msg_paste_nofile),
@@ -660,7 +660,7 @@ public class ThumbnailView1 extends Activity{
                         if (mWakeLock.isHeld())
                             mWakeLock.release();
 
-                        if (tvForPaste!=null) {
+                        if (tvForPaste != null) {
                             tvForPaste.setText("");
                             tvForPaste.setVisibility(View.GONE);
                         }
@@ -669,7 +669,7 @@ public class ThumbnailView1 extends Activity{
                         if (!cur_path.equals(FileListManager.STORAGE))
                             ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                     break;
-                    case 7:		//dir cannot write
+                    case 7:     //dir cannot write
                         Toast.makeText(ThumbnailView1.this,
                             getText(R.string.Toast_msg_paste_writeable),
                             Toast.LENGTH_SHORT).show();
@@ -679,12 +679,12 @@ public class ThumbnailView1 extends Activity{
                         if (mWakeLock.isHeld())
                             mWakeLock.release();
 
-                        if (tvForPaste!=null) {
+                        if (tvForPaste != null) {
                             tvForPaste.setText("");
                             tvForPaste.setVisibility(View.GONE);
                         }
                     break;
-                    case 8:		//no free space
+                    case 8:     //no free space
                         db.deleteAllFileMark();
                         if (!mMediaScannerRunning)
                             ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
@@ -698,15 +698,15 @@ public class ThumbnailView1 extends Activity{
                         if (mWakeLock.isHeld())
                             mWakeLock.release();
 
-                        if(tvForPaste!=null) {
+                        if (tvForPaste != null) {
                             tvForPaste.setText("");
                             tvForPaste.setVisibility(View.GONE);
                         }
                     break;
-                    case 9:		//file copy cancel
+                    case 9:     //file copy cancel
                         if ((FileOp.copying_file != null) && (FileOp.copying_file.exists())) {
                             try {
-                                if(FileOp.copying_file.isDirectory())
+                                if (FileOp.copying_file.isDirectory())
                                     FileUtils.deleteDirectory(FileOp.copying_file);
                                 else
                                     FileOp.copying_file.delete();
@@ -730,14 +730,14 @@ public class ThumbnailView1 extends Activity{
                         if (mWakeLock.isHeld())
                             mWakeLock.release();
                         scanAll();
-                        if(tvForPaste!=null) {
+                        if (tvForPaste != null) {
                             tvForPaste.setText("");
                             tvForPaste.setVisibility(View.GONE);
                         }
                     break;
                     case 10:    //update list
                         //((BaseAdapter) ThumbnailView.getAdapter()).notifyDataSetChanged();
-                        if(mListLoaded == false) {
+                        if (mListLoaded == false) {
                             break;
                         }
                         ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
@@ -746,7 +746,7 @@ public class ThumbnailView1 extends Activity{
                             load_dialog.dismiss();
                     break;
 
-                    case 11:	//destination dir is sub folder of src dir
+                    case 11:    //destination dir is sub folder of src dir
                         Toast.makeText(ThumbnailView1.this,
                         getText(R.string.Toast_msg_paste_sub_folder),
                         Toast.LENGTH_SHORT).show();
@@ -756,7 +756,7 @@ public class ThumbnailView1 extends Activity{
                         if (mWakeLock.isHeld())
                             mWakeLock.release();
 
-                        if(tvForPaste!=null) {
+                        if (tvForPaste != null) {
                             tvForPaste.setText("");
                             tvForPaste.setVisibility(View.GONE);
                         }
@@ -775,12 +775,12 @@ public class ThumbnailView1 extends Activity{
                 Map<String, Object> item = (Map<String, Object>)parent.getItemAtPosition(pos);
                 String file_path = (String) item.get(KEY_PATH);
                 File file = new File(file_path);
-                if(!file.exists()){
+                if (!file.exists()) {
                     //finish();
                     return;
                 }
 
-                if(Intent.ACTION_GET_CONTENT.equalsIgnoreCase(ThumbnailView1.this.getIntent().getAction())) {
+                if (Intent.ACTION_GET_CONTENT.equalsIgnoreCase(ThumbnailView1.this.getIntent().getAction())) {
                     if (file.isDirectory()) {
                         cur_path = file_path;
                         //GetCurrentFilelist(cur_path,cur_sort_type);
@@ -909,7 +909,7 @@ public class ThumbnailView1 extends Activity{
     public void onDestroy() {
         super.onDestroy();
         isInFileBrowserView=false;
-        if(!local_mode){
+        if (!local_mode) {
             db.deleteAllFileMark();
         }
         db.close();
@@ -940,7 +940,7 @@ public class ThumbnailView1 extends Activity{
         try {
             startActivity(intent);
         }
-        catch (ActivityNotFoundException e){
+        catch (ActivityNotFoundException e) {
             Toast.makeText(ThumbnailView1.this,
                 getText(R.string.Toast_msg_no_applicaton),
                 Toast.LENGTH_SHORT).show();
@@ -975,7 +975,7 @@ public class ThumbnailView1 extends Activity{
                 return help_dialog;
 
             case LOAD_DIALOG_ID:
-                if(load_dialog==null) {
+                if (load_dialog == null) {
                     load_dialog = new ProgressDialog(this);
                     load_dialog.setMessage(getText(R.string.load_dialog_msg_str));
                     load_dialog.setIndeterminate(true);
@@ -1041,13 +1041,13 @@ public class ThumbnailView1 extends Activity{
                 }
                 dialog.getWindow().setAttributes(lp);
 
-                if(mProgressHandler == null) return;
+                if (mProgressHandler == null) return;
                 mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 0));
                 edit_lv = (ListView) edit_dialog.getWindow().findViewById(R.id.edit_listview);
-                if(edit_lv == null) return;
+                if (edit_lv == null) return;
                 edit_lv.setAdapter(getDialogListAdapter(EDIT_DIALOG_ID));
                 //edit_dialog.setCanceledOnTouchOutside(false);
-                edit_dialog.setOnDismissListener(new OnDismissListener(){
+                edit_dialog.setOnDismissListener(new OnDismissListener() {
                 public void onDismiss(DialogInterface dialog) {
                 FileOp.copy_cancel = true;
                 }
@@ -1056,7 +1056,7 @@ public class ThumbnailView1 extends Activity{
                 edit_lv.setOnItemClickListener(new OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
                         if (!cur_path.equals(FileListManager.STORAGE)) {
-                            if(FileOp.IsBusy){
+                            if (FileOp.IsBusy) {
                                 return;
                             }
                             File wFile = new File(cur_path);
@@ -1188,7 +1188,7 @@ public class ThumbnailView1 extends Activity{
                                                         Toast.LENGTH_LONG).show();
                                                 }
                                             }
-                                            else if(true!=fileRename()) {
+                                            else if (true != fileRename()) {
                                                 Toast.makeText(ThumbnailView1.this,
                                                     getText(R.string.Toast_msg_rename_error),
                                                     Toast.LENGTH_SHORT).show();
@@ -1280,9 +1280,9 @@ public class ThumbnailView1 extends Activity{
         if (null != path) {
             int index=-1;
             index=path.lastIndexOf("/");
-            if(index>=0) {
-                name=path.substring(index+1);
-                if(null==name) {
+            if (index >= 0) {
+                name = path.substring(index+1);
+                if (null == name) {
                     return false;
                 }
             }
@@ -1303,16 +1303,16 @@ public class ThumbnailView1 extends Activity{
 
         buttonOK.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if( null != mRenameDialog ) {
+                if ( null != mRenameDialog ) {
                     mRenameDialog.dismiss();
                     mRenameDialog = null;
                 }
 
                 String newFileName = String.valueOf(mRenameEdit.getText());
-                if(!name.equals(newFileName)) {
+                if (!name.equals(newFileName)) {
                     newFileName = path.substring(0, path.lastIndexOf('/') + 1) + newFileName;
 
-                    if(mRenameFile.renameTo(new File(newFileName))) {
+                    if (mRenameFile.renameTo(new File(newFileName))) {
                         db.deleteAllFileMark();
                         ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                     }
@@ -1327,7 +1327,7 @@ public class ThumbnailView1 extends Activity{
 
         buttonCancel.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if( null != mRenameDialog){
+                if ( null != mRenameDialog) {
                     mRenameDialog.dismiss();
                     mRenameDialog = null;
                 }
@@ -1346,7 +1346,7 @@ public class ThumbnailView1 extends Activity{
         String type = "*/*";
 
         BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
-        if(ba == null) {
+        if (ba == null) {
             Toast.makeText(ThumbnailView1.this,
                 getText(R.string.Toast_msg_share_nodev),
                 Toast.LENGTH_SHORT).show();
@@ -1356,7 +1356,7 @@ public class ThumbnailView1 extends Activity{
         uris = FileOp.getMarkFilePathUri("thumbnail1");
         final int size = uris.size();
 
-        if(size > 0) {
+        if (size > 0) {
             if (size > 1) {
                 intent.setAction(Intent.ACTION_SEND_MULTIPLE).setType(type);
                 intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
@@ -1512,7 +1512,7 @@ public class ThumbnailView1 extends Activity{
         return true;
     }
 
-    private void scanAll(){
+    private void scanAll() {
         Intent intent = new Intent();
         intent.setClassName("com.android.providers.media","com.android.providers.media.MediaScannerService");
         Bundle argsa = new Bundle();

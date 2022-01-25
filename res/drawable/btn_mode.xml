@@ -18,7 +18,7 @@
     <item android:state_window_focused="true" android:state_focused="true"
         android:drawable="@drawable/btn_mode_selected" />
     <item android:state_checked="true"
-        android:drawable="@drawable/btn_mode_pressed" />        
+        android:drawable="@drawable/btn_mode_pressed" />
     <item
         android:drawable="@drawable/btn_mode_default" />
 </selector>

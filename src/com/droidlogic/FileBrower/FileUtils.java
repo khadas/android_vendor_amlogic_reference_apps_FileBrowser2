@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.List;
 import android.os.Message;
 
-public class FileUtils 
+public class FileUtils
 {
 
     /**
@@ -73,7 +73,7 @@ public class FileUtils
      * An exception is thrown if the file does not exist.
      * An exception is thrown if the file object exists but is a directory.
      * An exception is thrown if the file exists but cannot be read.
-     * 
+     *
      * @param file  the file to open for input, must not be <code>null</code>
      * @return a new {@link FileInputStream} for the specified file
      * @throws FileNotFoundException if the file does not exist
@@ -108,7 +108,7 @@ public class FileUtils
      * An exception is thrown if the file object exists but is a directory.
      * An exception is thrown if the file exists but cannot be written to.
      * An exception is thrown if the parent directory cannot be created.
-     * 
+     *
      * @param file  the file to open for output, must not be <code>null</code>
      * @return a new {@link FileOutputStream} for the specified file
      * @throws IOException if the file object is a directory
@@ -550,10 +550,10 @@ public class FileUtils
      * specified destination file. The directory holding the destination file is
      * created if it does not exist. If the destination file exists, then this
      * method will overwrite it.
-     * 
+     *
      * @param srcFile  an existing file to copy, must not be <code>null</code>
      * @param destFile  the new file, must not be <code>null</code>
-     * 
+     *
      * @throws NullPointerException if source or destination is <code>null</code>
      * @throws IOException if source or destination is invalid
      * @throws IOException if an IO error occurs during copying
@@ -611,7 +611,7 @@ public class FileUtils
 
     /**
      * Internal copy file method.
-     * 
+     *
      * @param srcFile  the validated source file, must not be <code>null</code>
      * @param destFile  the validated destination file, must not be <code>null</code>
      * @param preserveFileDate  whether to preserve the file date
@@ -627,9 +627,9 @@ public class FileUtils
             FileOutputStream output = new FileOutputStream(destFile);
             try {
                 IOUtils.copy(input, output);
-				FileDescriptor fd = output.getFD();
-				if(fd.valid())
-					fd.sync();
+                FileDescriptor fd = output.getFD();
+                if (fd.valid())
+                    fd.sync();
             } finally {
                 IOUtils.closeQuietly(output);
             }
@@ -646,14 +646,14 @@ public class FileUtils
         }
     }
 
-	private static String cur_page=null;
-	/**
-	* Set current page to check for showing copy progress
-	*/
-	public static void setCurPage(String page)
-	{
-		cur_page=page;
-	}
+    private static String cur_page=null;
+    /**
+    * Set current page to check for showing copy progress
+    */
+    public static void setCurPage(String page)
+    {
+        cur_page=page;
+    }
 
     //-----------------------------------------------------------------------
     /**
@@ -748,7 +748,7 @@ public class FileUtils
      * If the destination directory did exist, then this method merges
      * the source with the destination, with the source taking precedence.
      *
-     * <h4>Example: Copy directories only</h4> 
+     * <h4>Example: Copy directories only</h4>
      *  <pre>
      *  // only copy the directory structure
      *  FileUtils.copyDirectory(srcDir, destDir, DirectoryFileFilter.DIRECTORY);
@@ -792,7 +792,7 @@ public class FileUtils
      * If the destination directory did exist, then this method merges
      * the source with the destination, with the source taking precedence.
      *
-     * <h4>Example: Copy directories only</h4> 
+     * <h4>Example: Copy directories only</h4>
      *  <pre>
      *  // only copy the directory structure
      *  FileUtils.copyDirectory(srcDir, destDir, DirectoryFileFilter.DIRECTORY, false);
@@ -810,7 +810,7 @@ public class FileUtils
      *  // Copy using the filter
      *  FileUtils.copyDirectory(srcDir, destDir, filter, false);
      *  </pre>
-     * 
+     *
      * @param srcDir  an existing directory to copy, must not be <code>null</code>
      * @param destDir  the new directory, must not be <code>null</code>
      * @param filter  the filter to apply, null means copy all directories and files
@@ -857,7 +857,7 @@ public class FileUtils
 
     /**
      * Internal copy directory method.
-     * 
+     *
      * @param srcDir  the validated source directory, must not be <code>null</code>
      * @param destDir  the validated destination directory, must not be <code>null</code>
      * @param filter  the filter to apply, null means copy all directories and files
@@ -896,13 +896,13 @@ public class FileUtils
                 } else {
                     doCopyFile(files[i], copiedFile, preserveFileDate);
 
-					if(cur_page.equals("list")){
-        				FileBrower.mProgressHandler.sendMessage(Message.obtain(
-                				FileBrower.mProgressHandler, 1, (i+1) * 100 / files.length, 0));
-		        	}else if (cur_page.equals("thumbnail1")){
-		        		ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
-		        				ThumbnailView1.mProgressHandler, 1, (i+1) * 100 / files.length, 0));
-		        	}
+                    if (cur_page.equals("list")) {
+                        FileBrower.mProgressHandler.sendMessage(Message.obtain(
+                                FileBrower.mProgressHandler, 1, (i+1) * 100 / files.length, 0));
+                    } else if (cur_page.equals("thumbnail1")) {
+                        ThumbnailView1.mProgressHandler.sendMessage(Message.obtain(
+                                ThumbnailView1.mProgressHandler, 1, (i+1) * 100 / files.length, 0));
+                    }
                 }
             }
         }
@@ -930,9 +930,9 @@ public class FileUtils
             FileOutputStream output = openOutputStream(destination);
             try {
                 IOUtils.copy(input, output);
-				FileDescriptor fd = output.getFD();
-				if(fd.valid())
-					fd.sync();
+                FileDescriptor fd = output.getFD();
+                if (fd.valid())
+                    fd.sync();
             } finally {
                 IOUtils.closeQuietly(output);
             }
@@ -943,7 +943,7 @@ public class FileUtils
 
     //-----------------------------------------------------------------------
     /**
-     * Deletes a directory recursively. 
+     * Deletes a directory recursively.
      *
      * @param directory  directory to delete
      * @throws IOException in case deletion is unsuccessful
@@ -1087,7 +1087,7 @@ public class FileUtils
 
 
     /**
-     * Reads the contents of a file into a String using the default encoding for the VM. 
+     * Reads the contents of a file into a String using the default encoding for the VM.
      * The file is always closed.
      *
      * @param file  the file to read, must not be <code>null</code>
@@ -1235,7 +1235,7 @@ public class FileUtils
 
     /**
      * Writes a String to a file creating the file if it does not exist using the default encoding for the VM.
-     * 
+     *
      * @param file  the file to write
      * @param data  the content to write to the file
      * @throws IOException in case of an I/O error
@@ -1361,7 +1361,7 @@ public class FileUtils
         } else {
             boolean filePresent = file.exists();
             if (!file.delete()) {
-                if (!filePresent){
+                if (!filePresent) {
                     throw new FileNotFoundException("File does not exist: " + file);
                 }
                 String message =
@@ -1535,7 +1535,7 @@ public class FileUtils
     /**
      * Tests if the specified <code>File</code> is newer than the specified
      * <code>Date</code>.
-     * 
+     *
      * @param file  the <code>File</code> of which the modification date
      * must be compared, must not be <code>null</code>
      * @param date  the date reference, must not be <code>null</code>
@@ -1602,7 +1602,7 @@ public class FileUtils
     /**
      * Tests if the specified <code>File</code> is older than the specified
      * <code>Date</code>.
-     * 
+     *
      * @param file  the <code>File</code> of which the modification date
      * must be compared, must not be <code>null</code>
      * @param date  the date reference, must not be <code>null</code>
@@ -1758,7 +1758,7 @@ public class FileUtils
             throw new IOException("Destination '" + destDir + "' is not a directory");
         }
         moveDirectory(src, new File(destDir, src.getName()));
-    
+
     }
 
     /**
@@ -1841,7 +1841,7 @@ public class FileUtils
      * When the destination is on another file system, do a "copy and delete".
      *
      * @param src the file or directory to be moved
-     * @param destDir the destination directory 
+     * @param destDir the destination directory
      * @param createDestDir If <code>true</code> create the destination directory,
      * otherwise if <code>false</code> throw an IOException
      * @throws NullPointerException if source or destination is <code>null</code>

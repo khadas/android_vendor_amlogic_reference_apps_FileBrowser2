@@ -49,6 +49,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -59,6 +60,7 @@ import android.view.ViewGroup;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.Gravity;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -66,6 +68,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -77,6 +81,9 @@ import android.os.Environment;
 import android.os.storage.StorageVolume;
 //import android.os.storage.VolumeInfo;
 import android.content.BroadcastReceiver;
+import android.media.MediaScannerConnection;
+
+
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -91,6 +98,7 @@ import com.droidlogic.app.FileListManager;
 
 import android.bluetooth.BluetoothAdapter;
 import java.lang.System;
+import androidx.core.content.FileProvider;
 
 public class FileBrower extends Activity {
     public static final String TAG = "FileBrowser";
@@ -122,6 +130,7 @@ public class FileBrower extends Activity {
     private AlertDialog edit_dialog;
     private AlertDialog click_dialog;
     private AlertDialog help_dialog;
+    private ProgressBar mLoadingProgress;
     private ListView sort_lv;
     private ListView edit_lv;
     private ListView click_lv;
@@ -148,7 +157,9 @@ public class FileBrower extends Activity {
 
     private static FileListManager mFileListManager;
 
-    Comparator  mFileComparator = new Comparator<File>(){
+    private static final int RET_OK = 0;
+
+    Comparator  mFileComparator = new Comparator<File>() {
         @Override
         public int compare(File o1, File o2) {
             if (o1.isDirectory() && o2.isFile())
@@ -252,7 +263,7 @@ public class FileBrower extends Activity {
                     tvForPaste=(TextView)edit_dialog.findViewById(R.id.text_view_paste);
                 }
 
-                switch(msg.what) {
+                switch (msg.what) {
                     case 0: 	//set invisible
                         if ((edit_dialog != null) && (pb != null) && (tvForPaste != null)) {
                             pb.setVisibility(View.INVISIBLE);
@@ -422,6 +433,11 @@ public class FileBrower extends Activity {
             mListLoaded = false;
         }
 
+        File file = new File(cur_path);
+        if (!(file.exists())) {
+            cur_path = FileListManager.STORAGE;
+        }
+
         if (cur_path.equals(FileListManager.STORAGE)) {
             DeviceScan();
         }
@@ -453,10 +469,10 @@ public class FileBrower extends Activity {
         if (load_dialog != null)
             load_dialog.dismiss();
 
-        if(mListLoaded)
+        if (mListLoaded)
             mListLoaded = false;
 
-        if(!local_mode){
+        if (!local_mode) {
             db.deleteAllFileMark();
         }
         db.close();
@@ -676,6 +692,60 @@ public class FileBrower extends Activity {
         }
         db.close();
     }
+    private final class ScannPathTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            // We don't want to show the spinner every time we load images, because that would be
+            // annoying; instead, only start showing the spinner if loading the image has taken
+            // longer than 1 sec (ie 1000 ms)
+            if (mLoadingProgress == null) {
+                FrameLayout rootFrameLayout=(FrameLayout)findViewById(android.R.id.content);
+                FrameLayout.LayoutParams layoutParams=
+                    new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                layoutParams.gravity=Gravity.CENTER;
+                mLoadingProgress=new ProgressBar(FileBrower.this);
+                mLoadingProgress.setLayoutParams(layoutParams);
+                rootFrameLayout.addView(mLoadingProgress);
+                mLoadingProgress.setVisibility(View.GONE);
+            }
+
+            mLoadingProgress.postDelayed(() -> {
+                if (getStatus() != AsyncTask.Status.FINISHED && mLoadingProgress.getVisibility() == View.GONE) {
+                    mLoadingProgress.setVisibility(View.VISIBLE);
+                }
+            }, 500);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            Log.d(TAG, "doInBackground show image by image player service");
+            String filePath = params[0];
+            Log.i(TAG,"filePath = " + filePath);
+            MediaScanner mediaScanner = new MediaScanner(getBaseContext());
+            //String fileMimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("jpg");
+            String[] filePaths = new String[]{filePath};
+            //String[] mimeTypes = new String[]{fileMimeType};
+            mediaScanner.scanFiles(filePaths, null);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void arg) {
+            if (mLoadingProgress.getVisibility() == View.VISIBLE) {
+                mLoadingProgress.setVisibility(View.GONE);
+            }
+
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            if (mLoadingProgress.getVisibility() == View.VISIBLE) {
+                mLoadingProgress.setVisibility(View.GONE);
+            }
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -694,21 +764,100 @@ public class FileBrower extends Activity {
         }
     }
 
+    public class MediaScanner implements MediaScannerConnection.MediaScannerConnectionClient {
+
+        /**
+         *
+         */
+        private MediaScannerConnection mediaScanConn = null;
+
+        public MediaScanner(Context context) {
+
+            mediaScanConn = new MediaScannerConnection(context, this);
+        }
+
+        private int scanTimes = 0;
+        private String[] filePaths;
+        private String[] mimeTypes;
+
+
+        public void scanFiles(String[] filePaths, String[] mimeTypes) {
+            this.filePaths = filePaths;
+            this.mimeTypes = mimeTypes;
+            mediaScanConn.connect();
+        }
+
+
+        @Override
+        public void onMediaScannerConnected() {
+            for (int i = 0; i < filePaths.length; i++) {
+                Log.i(TAG,"onMediaScannerConnected " + filePaths[i]);
+                mediaScanConn.scanFile(filePaths[i], null);
+            }
+        }
+
+
+
+        @Override
+        public void onScanCompleted(String path, Uri uri) {
+            scanTimes ++;
+            if (scanTimes == filePaths.length) {
+                mediaScanConn.disconnect();
+                scanTimes = 0;
+            }
+
+            // TODO Auto-generated method stub
+            Intent intent = new Intent();
+            intent.setAction(android.content.Intent.ACTION_VIEW);
+            String type = "*/*";
+            File f = new File(path);
+            type = mFileListManager.CheckMediaType(f);
+            Log.i(TAG,"onScanCompleted file path = " + path);
+            Log.i(TAG,"onScanCompleted file path = " + uri.toString());
+            intent.setDataAndType(uri,type);
+            try {
+                startActivity(intent);
+            }
+            catch (ActivityNotFoundException e) {
+                Toast.makeText(FileBrower.this,
+                getText(R.string.Toast_msg_no_applicaton),
+                Toast.LENGTH_SHORT).show();
+            }
+
+            filePaths = null;
+            mimeTypes = null;
+        }
+
+    }
+
+
+    public void install_apk (String apk_filepath) {
+        Intent installintent = new Intent();
+        File apkFile = new File(apk_filepath);
+        installintent.setAction (Intent.ACTION_VIEW);
+        Uri uri = FileProvider.getUriForFile(this,
+            "com.droidlogic.filebrowser.fileprovider",
+            apkFile);
+        installintent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        installintent.setDataAndType(uri, "application/vnd.android.package-archive");
+        startActivityForResult(installintent,RET_OK);
+    }
+
     protected void openFile(File f) {
-        // TODO Auto-generated method stub
-        Intent intent = new Intent();
-        intent.setAction(android.content.Intent.ACTION_VIEW);
-        String type = "*/*";
-        type = mFileListManager.CheckMediaType(f);
-        intent.setDataAndType(Uri.fromFile(f),type);
-        try {
-            startActivity(intent);
+        String filePath = f.getAbsolutePath();
+        if (filePath.endsWith(".apk")) {
+            try {
+                install_apk(filePath);
+                return;
+            }
+            catch (ActivityNotFoundException e) {
+                Toast.makeText(FileBrower.this,
+                getText(R.string.Toast_msg_no_applicaton),
+                Toast.LENGTH_SHORT).show();
+            }
         }
-        catch (ActivityNotFoundException e) {
-            Toast.makeText(FileBrower.this,
-            getText(R.string.Toast_msg_no_applicaton),
-            Toast.LENGTH_SHORT).show();
-        }
+        ScannPathTask task = new ScannPathTask();
+        task.execute(filePath);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -738,7 +887,7 @@ public class FileBrower extends Activity {
         int length = 0;
         length = DeviceArray.length;
 
-        for (int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             if (FileOp.deviceExist(DeviceArray[i])) {
                 devList.add(DeviceArray[i]);
             }
@@ -867,15 +1016,15 @@ public class FileBrower extends Activity {
                 sort_lv.setOnItemClickListener(new OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
                         if (!cur_path.equals(FileListManager.STORAGE)) {
-                            if (pos == 0){
+                            if (pos == 0) {
                                 lv_sort_flag = "by_name";
                                 lv.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                             }
-                            else if (pos == 1){
+                            else if (pos == 1) {
                                 lv_sort_flag = "by_date";
                                 lv.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                             }
-                            else if (pos == 2){
+                            else if (pos == 2) {
                                 lv_sort_flag = "by_size";
                                 lv.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                             }
@@ -902,13 +1051,13 @@ public class FileBrower extends Activity {
                 }
                 dialog.getWindow().setAttributes(lp);
 
-                if(mProgressHandler == null) return;
+                if (mProgressHandler == null) return;
                 mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 0));
                 edit_lv = (ListView) edit_dialog.getWindow().findViewById(R.id.edit_listview);
-                if(edit_lv == null) return;
+                if (edit_lv == null) return;
                 edit_lv.setAdapter(getDialogListAdapter(EDIT_DIALOG_ID));
                 //edit_dialog.setCanceledOnTouchOutside(false);
-                edit_dialog.setOnDismissListener(new OnDismissListener(){
+                edit_dialog.setOnDismissListener(new OnDismissListener() {
                     public void onDismiss(DialogInterface dialog) {
                         FileOp.copy_cancel = true;
                     }
@@ -917,7 +1066,7 @@ public class FileBrower extends Activity {
                 edit_lv.setOnItemClickListener(new OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
                         if (!cur_path.equals(FileListManager.STORAGE)) {
-                            if(FileOp.IsBusy){
+                            if (FileOp.IsBusy) {
                                 return;
                             }
                             File wFile = new File(cur_path);
@@ -1528,7 +1677,7 @@ public class FileBrower extends Activity {
             break;
 
             case CLICK_DIALOG_ID:
-                for(int i = 0; i < open_mode.length; i++){
+                for (int i = 0; i < open_mode.length; i++) {
                     map = new HashMap<String, Object>();
                     map.put("item_type", R.drawable.dialog_item_img_unsel);
                     map.put("item_name", open_mode[i]);
@@ -1591,7 +1740,7 @@ public class FileBrower extends Activity {
         return str.equals(umount_path);
     }
 
-    private void scanAll(){
+    private void scanAll() {
         Intent intent = new Intent();
         intent.setClassName("com.android.providers.media","com.android.providers.media.MediaScannerService");
         Bundle argsa = new Bundle();
