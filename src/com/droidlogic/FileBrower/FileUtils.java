@@ -62,6 +62,11 @@ public class FileUtils
      */
     public static final File[] EMPTY_FILE_ARRAY = new File[0];
 
+    private static final String video_extensions = "3gp,asf,avi,dat,divx,f4v,flv,h264,lst,m2ts,m4v,mkv,mp2,mp4,mov,mpe,mpeg,mpg,mts,rm,rmvb,ts,tp,mvc,vc1,vob,wm,wmv,webm,m2v,pmp,bit,h265,3g2,mlv,hm10,ogm,vp9,trp,bin,ivf";
+    private static final String[] music_extensions = new String[]{".mp3", ".wma", ".m4a", ".aac", ".ape", ".mp2", ".ogg", ".flac", ".alac", ".wav", ".mid", ".xmf", ".mka", ".aiff", ".aifc", ".aif", ".pcm", ".adpcm"};
+    private static final String[] photo_extensions = new String[]{".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".png", ".gif", ".giff", ".jfi", ".jpe", ".jif", ".jfif", ".mpo", ".webp", ".3dg", "3dp"};
+    private static final String[] plain_extensions = new String[]{".txt", ".c", ".cpp", ".java", ",conf", ".h", ".log", ".rc"};
+
     //-----------------------------------------------------------------------
     /**
      * Opens a {@link FileInputStream} for the specified file, providing better
@@ -1864,6 +1869,92 @@ public class FileUtils
         } else {
             moveFileToDirectory(src, destDir, createDestDir);
         }
+    }
+
+    public static boolean isVideo(String var0) {
+        if (var0.lastIndexOf(".") == -1) {
+            return false;
+        }
+        var0 = var0.substring(var0.lastIndexOf("."));
+        String var1 = var0.toLowerCase();
+        String[] var2 = video_extensions.split(",");
+        String[] var3 = var2;
+        int var4 = var2.length;
+        for (int var5 = 0; var5 < var4; ++var5) {
+            String var6 = var3[var5];
+            if (var1.endsWith(var6)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isMusic(String var0) {
+        if (var0.lastIndexOf(".") == -1) {
+            return false;
+        }
+        var0 = var0.substring(var0.lastIndexOf("."));
+        String var1 = var0.toLowerCase();
+        String[] var2 = music_extensions;
+        int var3 = var2.length;
+
+        for (int var4 = 0; var4 < var3; ++var4) {
+            String var5 = var2[var4];
+            if (var1.endsWith(var5)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isPhoto(String var0) {
+        if (var0.lastIndexOf(".") == -1) {
+            return false;
+        }
+        var0 = var0.substring(var0.lastIndexOf("."));
+        String var1 = var0.toLowerCase();
+        String[] var2 = photo_extensions;
+        int var3 = var2.length;
+
+        for (int var4 = 0; var4 < var3; ++var4) {
+            String var5 = var2[var4];
+            if (var1.endsWith(var5)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isApk(String var0) {
+        String var1 = var0.toLowerCase();
+        return var1.endsWith(".apk");
+    }
+
+    public static boolean isHtm(String var0) {
+        String var1 = var0.toLowerCase();
+        return var1.endsWith(".htm") || var1.endsWith(".shtml") || var1.endsWith(".bin");
+    }
+
+    public static boolean isPdf(String var0) {
+        String var1 = var0.toLowerCase();
+        return var1.endsWith(".pdf");
+    }
+
+    public static boolean isPlain(String var0) {
+        String var1 = var0.toLowerCase();
+        String[] var2 = plain_extensions;
+        int var3 = var2.length;
+
+        for (int var4 = 0; var4 < var3; ++var4) {
+            String var5 = var2[var4];
+            if (var1.endsWith(var5)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
