@@ -6,7 +6,7 @@ prebuilt_etc {
     filename_from_src: true,
 }
 android_app {
-    name: "FileBrowser",
+    name: "FileBrowser2",
 
     srcs: ["**/*.java"],
     libs: ["droidlogic"],
