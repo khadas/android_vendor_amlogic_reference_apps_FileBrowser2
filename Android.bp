@@ -1,5 +1,5 @@
 prebuilt_etc {
-    name: "privapp_whitelist_com.droidlogic.filebrowser",
+    name: "privapp_whitelist_com.droidlogic.filebrowser2",
     vendor: true,
     sub_dir: "permissions",
     src: "com.droidlogic.filebrowser.xml",
