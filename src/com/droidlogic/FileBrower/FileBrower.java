@@ -1097,19 +1097,17 @@ public class FileBrower extends Activity {
 
     private ListAdapter
     getDeviceListAdapter() {
-
         List<Map<String, Object>> list = getDeviceListData();
-        for (int i=0;i<list.size();i++) {
-            int finalI = i;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    readList.clear();
-                    read(((String) list.get(finalI).get(KEY_PATH)));
+        readList.clear();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0;i<list.size();i++) {
+                    read(((String) list.get(i).get(KEY_PATH)));
                 }
-            }).start();
+            }
+        }).start();
 
-        }
         // TODO Auto-generated method stub
         return new SimpleAdapter(FileBrower.this, list,
             R.layout.device_item,
