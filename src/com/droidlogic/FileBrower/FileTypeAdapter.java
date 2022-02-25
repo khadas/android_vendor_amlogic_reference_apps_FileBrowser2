@@ -59,12 +59,13 @@ public class FileTypeAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) view.getTag();
         }
+        holder.typeIcon.setImageDrawable(mContext.getDrawable(typeIconNormal[i]));
         if (mCurrentItem == i && isClick) {
             holder.typeName.setTextColor(Color.WHITE);
-            holder.typeIcon.setImageDrawable(mContext.getDrawable(typeIconNormal[i]));
+            holder.typeIcon.setAlpha(1.0f);
         } else {
-            holder.typeIcon.setImageDrawable(mContext.getDrawable(typeIconFocused[i]));
-            holder.typeName.setTextColor(Color.BLACK);
+            holder.typeIcon.setAlpha(0.2f);
+            holder.typeName.setTextColor(mContext.getResources().getColor(R.color.item_type_color));
         }
         holder.typeName.setText(typeName[i]);
         return view;

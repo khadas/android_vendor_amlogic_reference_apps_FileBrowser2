@@ -189,6 +189,7 @@ public class FileBrower extends Activity {
     private Button btDel;
     private LinearLayout search_input;
     private StringBuilder setText = new StringBuilder("");
+    private boolean isMount = false;
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
         public int compare(File o1, File o2) {
@@ -215,6 +216,7 @@ public class FileBrower extends Activity {
             }
 
             if (action.equals(Intent.ACTION_MEDIA_EJECT)) {
+                isMount = false;
                 if (cur_path.startsWith(path)) {
                     cur_path = FileListManager.STORAGE;
                     DeviceScan();
@@ -231,6 +233,7 @@ public class FileBrower extends Activity {
             }
             else if ((action.equals ("com.droidvold.action.MEDIA_UNMOUNTED")
                 || action.equals ("com.droidvold.action.MEDIA_EJECT")) && !path.equals("/dev/null")) {
+                isMount = false;
                 if (cur_path.startsWith(path)) {
                     cur_path = FileListManager.STORAGE;
                     DeviceScan();
@@ -241,9 +244,14 @@ public class FileBrower extends Activity {
             }
             else if (action.equals(Intent.ACTION_MEDIA_MOUNTED) || action.equals ("com.droidvold.action.MEDIA_MOUNTED")) {
                 if (cur_path.equals(FileListManager.STORAGE)) {
+                    if (isMount) {
+                        return;
+                    }
                     DeviceScan();
                 }
+                isMount = true;
             } else if (action.equals(Intent.ACTION_MEDIA_UNMOUNTED)) {
+                isMount = false;
                 if (cur_path.startsWith(path)) {
                     cur_path = FileListManager.STORAGE;
                     DeviceScan();
@@ -444,6 +452,11 @@ public class FileBrower extends Activity {
                         tvForPaste.setVisibility(View.GONE);
                     }
                     break;
+                    case 12:
+                        if (load_dialog != null) {
+                            load_dialog.dismiss();
+                        }
+                        break;
                 }
             }
         };
@@ -1097,6 +1110,7 @@ public class FileBrower extends Activity {
 
     private ListAdapter
     getDeviceListAdapter() {
+        showDialog(LOAD_DIALOG_ID);
         List<Map<String, Object>> list = getDeviceListData();
         readList.clear();
         new Thread(new Runnable() {
@@ -1105,6 +1119,9 @@ public class FileBrower extends Activity {
                 for (int i=0;i<list.size();i++) {
                     read(((String) list.get(i).get(KEY_PATH)));
                 }
+                if (null != mProgressHandler)
+                    mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 12));
+
             }
         }).start();
 
@@ -1731,12 +1748,21 @@ public class FileBrower extends Activity {
             return mList;
         }
     }
-
-    private void read(String path){
+    Object object = new Object();
+    private synchronized void read(String path){
         File file = new File(path);
         File[] files = file.listFiles();
-        List<Map<String, Object>> list109 =   getFileListDataSortedAsync(path, "by_name");
-        readList.addAll(list109);
+        synchronized (object) {
+            new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    List<Map<String, Object>> list109 =   getFileListDataSortedAsync(path, "by_name");
+                    readList.addAll(list109);
+                }
+            }.start();
+
+        }
         if (files == null || files.length < 1) {
             return;
         }
@@ -1777,7 +1803,7 @@ public class FileBrower extends Activity {
     }
 
     /** getFileListDataSorted */
-    private List<Map<String, Object>> getFileListDataSortedAsync(String path, String sort_type) {
+    private synchronized List<Map<String, Object>> getFileListDataSortedAsync(String path, String sort_type) {
         List<Map<String, Object>> list = mFileListManager.getFiles(path);
         int fileCnt = list.size();
         String tmpPath = null;

@@ -19,5 +19,5 @@
     <color name="btn_bar_bg_color">#FF3A6EA5</color>
     <color name="item_text_color">#FFFFFFFF</color>
     <color name="dialog_text_color">#FFFFFFFF</color>
-
+    <color name="item_type_color">#9f9f9f</color>
 </resources>

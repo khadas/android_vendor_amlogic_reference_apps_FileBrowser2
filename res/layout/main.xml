@@ -75,6 +75,7 @@
         android:textStyle="italic|bold"
         android:background="@drawable/btn_bar_bg"/>
     <LinearLayout
+        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
@@ -84,7 +85,8 @@
             android:layout_weight="1"
             android:layout_height="fill_parent">
             <ListView
-                android:id="@+id/lv_type"
+	        android:id="@+id/lv_type"
+		android:divider="@null"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"/>
             <include
@@ -92,6 +94,15 @@
                 layout="@layout/search"
                 android:visibility="gone"/>
         </LinearLayout>
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#9f9f9f"/>
 
         <ListView
             android:id="@+id/listview"
