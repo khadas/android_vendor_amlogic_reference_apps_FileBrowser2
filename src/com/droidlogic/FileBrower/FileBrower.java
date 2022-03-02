@@ -190,6 +190,8 @@ public class FileBrower extends Activity {
     private LinearLayout search_input;
     private StringBuilder setText = new StringBuilder("");
     private boolean isMount = false;
+    private boolean isSearch = false;
+    private boolean isSearchItemClick = false;
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
         public int compare(File o1, File o2) {
@@ -475,7 +477,9 @@ public class FileBrower extends Activity {
         if (mListLoaded) {
             mListLoaded = false;
         }
-
+        if (isSearch) {
+            return;
+        }
         File file = new File(cur_path);
         if (!(file.exists())) {
             cur_path = FileListManager.STORAGE;
@@ -485,7 +489,7 @@ public class FileBrower extends Activity {
             DeviceScan();
         }
         else {
-            lv.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+            getFileListAdapterSorted(cur_path, lv_sort_flag);
         }
         lv.setSelectionFromTop(item_position_selected, fromtop_piexl);
         isInFileBrowserView=true;
@@ -600,6 +604,7 @@ public class FileBrower extends Activity {
         /* lv OnItemClickListener */
         lv.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+                isSearchItemClick = true;
                 Map<String, Object> item = (Map<String, Object>)parent.getItemAtPosition(pos);
                 String file_path = (String) item.get(KEY_PATH);
                 File file = new File(file_path);
@@ -623,7 +628,7 @@ public class FileBrower extends Activity {
                     if (!btn_mode.isChecked()) {
                         if (file.isDirectory()) {
                             cur_path = file_path;
-                            lv.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+                            getFileListAdapterSorted(cur_path, lv_sort_flag);
                         }
                         else {
                             openFile(file);
@@ -708,6 +713,7 @@ public class FileBrower extends Activity {
         Button btn_home = (Button) findViewById(R.id.btn_home);
         btn_home.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+                isSearch = false;
                 search_input.setVisibility(View.GONE);
                 lv_type.setVisibility(View.VISIBLE);
                 cur_path = FileListManager.STORAGE;
@@ -755,6 +761,7 @@ public class FileBrower extends Activity {
         btn_search.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                isSearch = true;
                 initKeyBroad();
                 sList = new ArrayList<>();
                 simpleAdapter2 = new SimpleAdapter(FileBrower.this,
@@ -806,6 +813,7 @@ public class FileBrower extends Activity {
     private void initKeyBroad() {
         search_input.setVisibility(View.VISIBLE);
         lv_type.setVisibility(View.GONE);
+        gridLayout.removeAllViews();
         for (int i = 0; i < mStrings.length; i++) {
             Button textView = new Button(this);
             textView.setPadding(1, 1, 1, 1);
@@ -2033,7 +2041,12 @@ public class FileBrower extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (!cur_path.equals(FileListManager.STORAGE)) {
+            if (isSearch && isSearchItemClick) {
+                lv.setAdapter(simpleAdapter2);
+                isSearchItemClick = false;
+                return true;
+            }
+            if (!cur_path.equals(FileListManager.STORAGE) && !isSearch) {
                 File file = new File(cur_path);
                 String parent_path = file.getParent();
                 if (cur_path.equals(FileListManager.NAND) || parent_path.equals(FileListManager.MEDIA_RW)) {
@@ -2042,7 +2055,7 @@ public class FileBrower extends Activity {
                 }
                 else {
                     cur_path = parent_path;
-                    lv.setAdapter(getFileListAdapterSorted(parent_path, lv_sort_flag));
+                    getFileListAdapterSorted(parent_path, lv_sort_flag);
                 }
                 return true;
             }
