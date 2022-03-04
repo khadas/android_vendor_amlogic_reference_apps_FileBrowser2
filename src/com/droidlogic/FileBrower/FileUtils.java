@@ -1942,6 +1942,17 @@ public class FileUtils
         return var1.endsWith(".pdf");
     }
 
+    public static boolean isDocument(String var0) {
+        String var1 = var0.toLowerCase();
+        if (var1.endsWith(".pdf") || var1.endsWith(".txt") || var1.endsWith(".xml") ||
+                var1.endsWith(".doc") || var1.endsWith(".docx") || var1.endsWith(".xls") ||
+                var1.endsWith(".xlsx")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static boolean isPlain(String var0) {
         String var1 = var0.toLowerCase();
         String[] var2 = plain_extensions;

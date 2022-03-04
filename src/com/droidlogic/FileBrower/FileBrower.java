@@ -1804,6 +1804,10 @@ public class FileBrower extends Activity {
                     if (FileUtils.isApk(file.getName()) ) {
                         list1.add(readList.get(i));
                     }
+                } else if (findBy == 5) {
+                    if (FileUtils.isDocument(file.getName()) ) {
+                        list1.add(readList.get(i));
+                    }
                 }
             }
         }
