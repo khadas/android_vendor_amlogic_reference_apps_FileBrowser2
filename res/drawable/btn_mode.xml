@@ -14,11 +14,11 @@
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true"
-        android:drawable="@drawable/btn_mode_pressed" />
+        android:drawable="@mipmap/mian_choose_selected" />
     <item android:state_window_focused="true" android:state_focused="true"
-        android:drawable="@drawable/btn_mode_selected" />
+        android:drawable="@mipmap/mian_choose_focused" />
     <item android:state_checked="true"
-        android:drawable="@drawable/btn_mode_pressed" />
+        android:drawable="@mipmap/mian_choose_selected" />
     <item
-        android:drawable="@drawable/btn_mode_default" />
+        android:drawable="@mipmap/mian_choose_normal" />
 </selector>

@@ -710,7 +710,7 @@ public class FileBrower extends Activity {
         });
 
         /* btn_home listener */
-        Button btn_home = (Button) findViewById(R.id.btn_home);
+        ImageButton btn_home = (ImageButton) findViewById(R.id.btn_home);
         btn_home.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 isSearch = false;
@@ -736,7 +736,7 @@ public class FileBrower extends Activity {
         });*/
 
         /* btn_sort_listener */
-        Button btn_sort = (Button) findViewById(R.id.btn_sort);
+        ImageButton btn_sort = (ImageButton) findViewById(R.id.btn_sort);
         btn_sort.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!cur_path.equals(FileListManager.STORAGE))
@@ -787,7 +787,7 @@ public class FileBrower extends Activity {
         });
 
         /* btn_istswitch_listener */
-        Button btn_listswitch = (Button) findViewById(R.id.btn_listswitch);
+        ImageButton btn_listswitch = (ImageButton) findViewById(R.id.btn_listswitch);
         btn_listswitch.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (Intent.ACTION_GET_CONTENT.equalsIgnoreCase(FileBrower.this.getIntent().getAction())) {

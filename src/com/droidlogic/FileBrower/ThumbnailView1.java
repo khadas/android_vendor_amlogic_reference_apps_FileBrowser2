@@ -62,6 +62,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
@@ -123,6 +124,15 @@ public class ThumbnailView1 extends Activity{
     private String lv_sort_flag = "by_name";
     private boolean isInFileBrowserView=false;
     private FileListManager mFileListManager;
+    private int[] typeIconNormal = {R.mipmap.main_all,R.mipmap.main_video,
+            R.mipmap.main_music,R.mipmap.main_picture,R.mipmap.main_apk,
+            R.mipmap.main_file};
+    private int[] typeIconFocused = {R.mipmap.main_all,R.mipmap.main_video,
+            R.mipmap.main_music,R.mipmap.main_picture,R.mipmap.main_apk,
+            R.mipmap.main_file};
+    private String[] typeName;
+    private ListView lv_thumb_type;
+    private FileTypeAdapter fileTypeAdapter;
 
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
@@ -541,6 +551,7 @@ public class ThumbnailView1 extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thumbnail);
         mFileListManager = new FileListManager(this);
+        typeName = getResources().getStringArray(R.array.sort);
         Bundle bundle = this.getIntent().getExtras();
         if (!bundle.getString("sort_flag").equals("")) {
             lv_sort_flag=bundle.getString("sort_flag");
@@ -549,6 +560,9 @@ public class ThumbnailView1 extends Activity{
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
         ThumbnailView = (GridView)findViewById(R.id.mygridview);
+        lv_thumb_type = findViewById(R.id.lv_thumb_type);
+        fileTypeAdapter = new FileTypeAdapter(this, typeName, typeIconNormal, typeIconFocused);
+        lv_thumb_type.setAdapter(fileTypeAdapter);
         /*get cur path form listview*/
         SharedPreferences settings = getSharedPreferences("settings", Activity.MODE_PRIVATE);
         cur_path = settings.getString("cur_path", FileListManager.STORAGE);
@@ -829,7 +843,7 @@ public class ThumbnailView1 extends Activity{
 
         //button click listener
         /*home button*/
-        Button btn_thumbhome = (Button) findViewById(R.id.btn_thumbhome);
+        ImageButton btn_thumbhome = (ImageButton) findViewById(R.id.btn_thumbhome);
         btn_thumbhome.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 cur_path = FileListManager.STORAGE;
@@ -854,7 +868,7 @@ public class ThumbnailView1 extends Activity{
         });
 
         /*edit button*/
-        Button btn_thumbsort = (Button) findViewById(R.id.btn_thumbsort);
+        ImageButton btn_thumbsort = (ImageButton) findViewById(R.id.btn_thumbsort);
         btn_thumbsort.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!cur_path.equals(FileListManager.STORAGE))
@@ -890,7 +904,7 @@ public class ThumbnailView1 extends Activity{
         });
 
         /*switch_button*/
-        Button btn_thumbswitch = (Button) findViewById(R.id.btn_thumbswitch);
+        ImageButton btn_thumbswitch = (ImageButton) findViewById(R.id.btn_thumbswitch);
         btn_thumbswitch.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 FileOp.SetMode(true);

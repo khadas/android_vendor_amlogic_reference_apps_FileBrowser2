@@ -29,13 +29,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical">
-
-            <Button style="@style/btn_style"
+            <ImageButton
+                style="@style/btn_style"
                 android:id="@+id/btn_home"
-                android:background="@drawable/btn_home"
-                android:layout_width="62dp"
-                android:layout_height="62dp"/>
+                android:layout_gravity="center"
+                android:src="@mipmap/main_home"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:background="@drawable/btn_round_selector"/>
             <ToggleButton style="@style/btn_style"
+                android:layout_width="80dp"
+                android:layout_height="34dp"
                 android:id="@+id/btn_mode"
                 android:background="@drawable/btn_mode"
                 android:textOn=""
@@ -45,25 +49,38 @@
                 android:id="@+id/btn_edit"
                 android:background="@drawable/btn_edit"/>
             -->
-            <Button style="@style/btn_style"
+            <ImageButton
+                style="@style/btn_style"
                 android:id="@+id/btn_sort"
-                android:background="@drawable/btn_sort"/>
+                android:layout_gravity="center"
+                android:src="@mipmap/main_sort"
+                android:layout_width="80dp"
+                android:layout_height="34dp"
+                android:background="@drawable/btn_box_selector"/>
             <Button style="@style/btn_style"
                 android:id="@+id/btn_parent"
+                android:visibility="gone"
                 android:background="@drawable/btn_parent"/>
-            <Button style="@style/btn_style"
+
+            <ImageButton
+                style="@style/btn_style"
                 android:id="@+id/btn_listswitch"
-                android:background="@drawable/btn_listswitch"/>
+                android:layout_gravity="center"
+                android:src="@mipmap/main_show"
+                android:layout_width="80dp"
+                android:layout_height="34dp"
+                android:background="@drawable/btn_box_selector"/>
             <Button style="@style/btn_style"
                 android:id="@+id/btn_help"
+                android:visibility="gone"
                 android:background="@drawable/btn_help"/>
             <ImageButton
                 android:id="@+id/btn_search"
                 android:layout_gravity="center"
                 android:src="@mipmap/main_search"
-                android:layout_width="100dp"
+                android:layout_width="80dp"
                 android:layout_height="34dp"
-                android:background="@drawable/btn_navigation_selector"/>
+                android:background="@drawable/btn_box_selector"/>
         </LinearLayout>
     <!--</HorizontalScrollView>-->
 
@@ -85,8 +102,8 @@
             android:layout_weight="1"
             android:layout_height="fill_parent">
             <ListView
-	        android:id="@+id/lv_type"
-		android:divider="@null"
+                android:divider="@null"
+                android:id="@+id/lv_type"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"/>
             <include
