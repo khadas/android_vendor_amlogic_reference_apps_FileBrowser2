@@ -29,7 +29,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import android.os.Message;
 
 public class FileUtils
@@ -1967,7 +1970,35 @@ public class FileUtils
 
         return false;
     }
+    public static List<Map<String, Object>> getFiles(String var1) {
+        List<Map<String, Object>> mListFile = new ArrayList();
+        File var3 = new File(var1);
+        if (var3 != null && var3.exists() && var3.isDirectory()) {
+            File[] var4 = var3.listFiles();
+            if (var4 != null && var4.length > 0) {
+                File[] var5 = var4;
+                int var6 = var4.length;
 
+                for (int var7 = 0; var7 < var6; ++var7) {
+                    File var8 = var5[var7];
+                    String var9 = var8.getAbsolutePath();
+                    String var10 = var8.getName();
+                    HashMap var2 = new HashMap();
+                    var2.put("key_name", var10);
+                    var2.put("key_path", var9);
+                    var2.put("key_date", 0);
+                    var2.put("key_size", 1);
+                    var2.put("key_sele", "sele_no");
+                    var2.put("key_rdwr", (Object)null);
+                    var2.put("key_type", (Object)null);
+
+                    mListFile.add(var2);
+                }
+            }
+        }
+
+        return mListFile;
+    }
 }
 
 

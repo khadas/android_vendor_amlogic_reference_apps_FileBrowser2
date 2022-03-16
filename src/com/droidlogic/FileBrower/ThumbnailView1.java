@@ -133,6 +133,7 @@ public class ThumbnailView1 extends Activity{
     private String[] typeName;
     private ListView lv_thumb_type;
     private FileTypeAdapter fileTypeAdapter;
+    private List<Map<String, Object>> readList = new ArrayList<>();
 
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
@@ -512,8 +513,12 @@ public class ThumbnailView1 extends Activity{
         if (mListLoaded == true) {
             mListLoaded = false;
         }
+        if (cur_path.equals(FileListManager.STORAGE)) {
+            ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+        } else {
+            getFileListAdapterSorted(cur_path, lv_sort_flag);
+        }
 
-        ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
         isInFileBrowserView=true;
     }
 
@@ -556,6 +561,7 @@ public class ThumbnailView1 extends Activity{
         if (!bundle.getString("sort_flag").equals("")) {
             lv_sort_flag=bundle.getString("sort_flag");
         }
+        readList = (List<Map<String, Object>>) bundle.getSerializable("readList");
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
@@ -563,6 +569,36 @@ public class ThumbnailView1 extends Activity{
         lv_thumb_type = findViewById(R.id.lv_thumb_type);
         fileTypeAdapter = new FileTypeAdapter(this, typeName, typeIconNormal, typeIconFocused);
         lv_thumb_type.setAdapter(fileTypeAdapter);
+        lv_thumb_type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                fileTypeAdapter.setCurrentItem(i);
+                fileTypeAdapter.setItemClick(true);
+                fileTypeAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        lv_thumb_type.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ThumbnailAdapter1 adapter1 = new ThumbnailAdapter1(ThumbnailView1.this,
+                        sortType(position),
+                        R.layout.gridview_item,
+                        new String[]{
+                                KEY_TYPE,
+                                KEY_SELE,
+                                KEY_NAME},
+                        new int[]{
+                                R.id.itemImage,
+                                R.id.itemMark,
+                                R.id.itemText});
+                ThumbnailView.setAdapter(adapter1);
+            }
+        });
+
         /*get cur path form listview*/
         SharedPreferences settings = getSharedPreferences("settings", Activity.MODE_PRIVATE);
         cur_path = settings.getString("cur_path", FileListManager.STORAGE);
@@ -812,7 +848,7 @@ public class ThumbnailView1 extends Activity{
                         if (file.isDirectory()) {
                             cur_path = file_path;
                             //GetCurrentFilelist(cur_path,cur_sort_type);
-                            ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+                            getFileListAdapterSorted(cur_path, lv_sort_flag);
                             //ThumbnailView.setAdapter(getThumbnailAdapter(cur_path,cur_sort_type));
                         }
                         else {
@@ -1547,10 +1583,43 @@ public class ThumbnailView1 extends Activity{
                 else {
                     cur_path = parent_path;
                 }
-                ThumbnailView.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+                getFileListAdapterSorted(cur_path, lv_sort_flag);
                 return true;
             }
         }
         return super.onKeyDown(keyCode, event);
     }
+
+        private List<Map<String, Object>> sortType(int findBy) {
+            List<Map<String, Object>> list1 = new ArrayList<>();
+            if (findBy == 0) {
+                list1.addAll(readList);
+            } else {
+                for (int i=0; i<readList.size(); i++) {
+                    File file = new File(((String) readList.get(i).get(KEY_PATH)));
+                    if (findBy == 1) {
+                        if (FileUtils.isVideo(file.getName()) ) {
+                            list1.add(readList.get(i));
+                        }
+                    } else if (findBy == 2) {
+                        if (FileUtils.isMusic(file.getName()) ) {
+                            list1.add(readList.get(i));
+                        }
+                    } else if (findBy == 3) {
+                        if (FileUtils.isPhoto(file.getName()) ) {
+                            list1.add(readList.get(i));
+                        }
+                    } else if (findBy == 4) {
+                        if (FileUtils.isApk(file.getName()) ) {
+                            list1.add(readList.get(i));
+                        }
+                    } else if (findBy == 5) {
+                        if (FileUtils.isDocument(file.getName()) ) {
+                            list1.add(readList.get(i));
+                        }
+                    }
+                }
+            }
+            return list1;
+        }
 }

@@ -18,9 +18,11 @@ package com.droidlogic.FileBrower;
 
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Parcelable;
 import android.os.storage.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -55,6 +57,7 @@ import android.os.AsyncTask;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -105,6 +108,8 @@ import com.droidlogic.app.FileListManager;
 
 import android.bluetooth.BluetoothAdapter;
 import java.lang.System;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
@@ -192,6 +197,8 @@ public class FileBrower extends Activity {
     private boolean isMount = false;
     private boolean isSearch = false;
     private boolean isSearchItemClick = false;
+    private boolean isBtnHome = false;
+    private ExecutorService executorService = Executors.newFixedThreadPool(10);
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
         public int compare(File o1, File o2) {
@@ -713,6 +720,7 @@ public class FileBrower extends Activity {
         ImageButton btn_home = (ImageButton) findViewById(R.id.btn_home);
         btn_home.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+                isBtnHome = true;
                 isSearch = false;
                 search_input.setVisibility(View.GONE);
                 lv_type.setVisibility(View.VISIBLE);
@@ -800,6 +808,7 @@ public class FileBrower extends Activity {
                     Intent intent = new Intent();
                     intent.setClass(FileBrower.this, ThumbnailView1.class);
                     Bundle bundle = new Bundle();
+                    bundle.putSerializable("readList", (Serializable) readList);
                     bundle.putString("sort_flag", lv_sort_flag);
                     intent.putExtras(bundle);
                     local_mode = true;
@@ -1118,21 +1127,24 @@ public class FileBrower extends Activity {
 
     private ListAdapter
     getDeviceListAdapter() {
-        showDialog(LOAD_DIALOG_ID);
         List<Map<String, Object>> list = getDeviceListData();
-        readList.clear();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0;i<list.size();i++) {
-                    read(((String) list.get(i).get(KEY_PATH)));
+        if (!isBtnHome) {
+            showDialog(LOAD_DIALOG_ID);
+            readList.clear();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i=0;i<list.size();i++) {
+                        read(((String) list.get(i).get(KEY_PATH)));
+                    }
+                    if (null != mProgressHandler)
+                        mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 12));
+
                 }
-                if (null != mProgressHandler)
-                    mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 12));
-
-            }
-        }).start();
-
+            }).start();
+        } else {
+            isBtnHome = false;
+        }
         // TODO Auto-generated method stub
         return new SimpleAdapter(FileBrower.this, list,
             R.layout.device_item,
@@ -1654,7 +1666,7 @@ public class FileBrower extends Activity {
 
     /** getFileListData */
     private List<Map<String, Object>> getFileListData(String path) {
-        List<Map<String, Object>> list = mFileListManager.getFiles(path);
+        List<Map<String, Object>> list = FileUtils.getFiles(path);
         int fileCnt = list.size();
         String tmpPath = null;
         for (int i = 0; i < fileCnt; i++) {
@@ -1757,20 +1769,16 @@ public class FileBrower extends Activity {
         }
     }
     Object object = new Object();
-    private synchronized void read(String path){
+    private void read(String path){
         File file = new File(path);
         File[] files = file.listFiles();
-        synchronized (object) {
-            new Thread(){
-                @Override
-                public void run() {
-                    super.run();
-                    List<Map<String, Object>> list109 =   getFileListDataSortedAsync(path, "by_name");
-                    readList.addAll(list109);
-                }
-            }.start();
-
-        }
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<Map<String, Object>> list109 =   getFileListDataSortedAsync(path, "by_name");
+                readList.addAll(list109);
+            }
+        });
         if (files == null || files.length < 1) {
             return;
         }
@@ -1815,8 +1823,8 @@ public class FileBrower extends Activity {
     }
 
     /** getFileListDataSorted */
-    private synchronized List<Map<String, Object>> getFileListDataSortedAsync(String path, String sort_type) {
-        List<Map<String, Object>> list = mFileListManager.getFiles(path);
+    private List<Map<String, Object>> getFileListDataSortedAsync(String path, String sort_type) {
+        List<Map<String, Object>> list = FileUtils.getFiles(path);
         int fileCnt = list.size();
         String tmpPath = null;
         for (int i = 0; i < fileCnt; i++) {
@@ -2055,11 +2063,17 @@ public class FileBrower extends Activity {
                 String parent_path = file.getParent();
                 if (cur_path.equals(FileListManager.NAND) || parent_path.equals(FileListManager.MEDIA_RW)) {
                     cur_path = FileListManager.STORAGE;
-                    DeviceScan();
+                    lv.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
                 }
                 else {
+
                     cur_path = parent_path;
-                    getFileListAdapterSorted(parent_path, lv_sort_flag);
+                    if (cur_path.equals(FileListManager.STORAGE)) {
+                        lv.setAdapter(getFileListAdapterSorted(cur_path, lv_sort_flag));
+                    } else {
+                        getFileListAdapterSorted(parent_path, lv_sort_flag);
+                    }
+
                 }
                 return true;
             }
