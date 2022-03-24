@@ -54,6 +54,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -163,6 +164,7 @@ public class FileBrower extends Activity {
     private List<String> devList = new ArrayList<String>();
     private int request_code = 1550;
     private String lv_sort_flag = "by_name";
+    private String show_by = "";
 
     private int item_position_selected, item_position_first, item_position_last;
     private int fromtop_piexl;
@@ -199,6 +201,9 @@ public class FileBrower extends Activity {
     private boolean isSearchItemClick = false;
     private boolean isBtnHome = false;
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private SimpleAdapter mSimpleAdapter;
+    private List typeList = new ArrayList<Map<String, Object>>();
+    private UsbBroadCastReceiver usbBroadCastReceiver;
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
         public int compare(File o1, File o2) {
@@ -465,6 +470,16 @@ public class FileBrower extends Activity {
                         if (load_dialog != null) {
                             load_dialog.dismiss();
                         }
+                        if (!show_by.equals("")) {
+                            typeList.clear();
+                            typeList.addAll(sortType(Integer.parseInt(show_by)));
+                            mSimpleAdapter.notifyDataSetChanged();
+
+                            fileTypeAdapter.setCurrentItem(Integer.parseInt(show_by));
+                            fileTypeAdapter.setItemClick(true);
+                            fileTypeAdapter.notifyDataSetChanged();
+                            show_by = "";
+                        }
                         break;
                 }
             }
@@ -480,6 +495,7 @@ public class FileBrower extends Activity {
         intentFilter.addAction ("com.droidvold.action.MEDIA_EJECT");
         intentFilter.addDataScheme("file");
         registerReceiver(mMountReceiver, intentFilter);
+        registerReceiver(usbBroadCastReceiver, intentFilter);
 
         if (mListLoaded) {
             mListLoaded = false;
@@ -487,15 +503,16 @@ public class FileBrower extends Activity {
         if (isSearch) {
             return;
         }
-        File file = new File(cur_path);
+        /*File file = new File(cur_path);
         if (!(file.exists())) {
             cur_path = FileListManager.STORAGE;
-        }
-
+        }*/
+        System.out.println("sunkun-cur_path--"+cur_path);
         if (cur_path.equals(FileListManager.STORAGE)) {
             DeviceScan();
-        }
-        else {
+        } else if (cur_path.equals("")) {
+
+        } else {
             getFileListAdapterSorted(cur_path, lv_sort_flag);
         }
         lv.setSelectionFromTop(item_position_selected, fromtop_piexl);
@@ -531,12 +548,26 @@ public class FileBrower extends Activity {
         }
         db.close();
     }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        show_by = String.valueOf(intent.getIntExtra("show_by",0));
+        if (show_by.equals("0")) {
+            show_by = "";
+        }
+    }
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        if (!Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+            startActivity(intent);
+            return;
+        }
+        usbBroadCastReceiver = new UsbBroadCastReceiver();
         mFileListManager = new FileListManager(this);
         typeName = getResources().getStringArray(R.array.sort);
         try {
@@ -594,7 +625,7 @@ public class FileBrower extends Activity {
             }
         }
         catch (Exception e) {
-            Log.e(TAG, "Do not set cur_path");
+            Log.e(TAG, " Do not set cur_path");
         }
 
         if (cur_path != null) {
@@ -675,6 +706,11 @@ public class FileBrower extends Activity {
         lv_type.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (i == 0) {
+                    lv.setAdapter(getFileListAdapterSorted(FileListManager.STORAGE, lv_sort_flag));
+                    return;
+                }
+                cur_path = "";
                 SimpleAdapter simpleAdapter = new SimpleAdapter(FileBrower.this,
                         sortType(i),
                         R.layout.filelist_item,
@@ -730,7 +766,7 @@ public class FileBrower extends Activity {
         });
 
         /* btn_edit_listener */
-        /*Button btn_edit = (Button) findViewById(R.id.btn_edit);
+        ImageButton btn_edit = (ImageButton) findViewById(R.id.btn_edit);
         btn_edit.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!cur_path.equals(FileListManager.STORAGE))
@@ -741,7 +777,7 @@ public class FileBrower extends Activity {
                     Toast.LENGTH_SHORT).show();
                 }
             }
-        });*/
+        });
 
         /* btn_sort_listener */
         ImageButton btn_sort = (ImageButton) findViewById(R.id.btn_sort);
@@ -1122,7 +1158,48 @@ public class FileBrower extends Activity {
                 devList.add(DeviceArray[i]);
             }
         }
-        lv.setAdapter(getDeviceListAdapter());
+        if (!show_by.equals("")) {
+            List<Map<String, Object>> list = getDeviceListData();
+            if (!isBtnHome) {
+                showDialog(LOAD_DIALOG_ID);
+                readList.clear();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i=0;i<list.size();i++) {
+                            read(((String) list.get(i).get(KEY_PATH)));
+                        }
+                        if (null != mProgressHandler)
+                            mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 12));
+
+                    }
+                }).start();
+            } else {
+                isBtnHome = false;
+            }
+
+            mSimpleAdapter = new SimpleAdapter(FileBrower.this,
+                    typeList,
+                    R.layout.filelist_item,
+                    new String[]{
+                            KEY_TYPE,
+                            KEY_NAME,
+                            KEY_SELE,
+                            KEY_SIZE,
+                            KEY_DATE,
+                            KEY_RDWR},
+                    new int[]{
+                            R.id.item_type,
+                            R.id.item_name,
+                            R.id.item_sel,
+                            R.id.item_size,
+                            R.id.item_date,
+                            R.id.item_rw}
+            );
+            lv.setAdapter(mSimpleAdapter);
+        } else {
+            lv.setAdapter(getDeviceListAdapter());
+        }
     }
 
     private ListAdapter
@@ -1796,6 +1873,9 @@ public class FileBrower extends Activity {
         } else {
             for (int i=0; i<readList.size(); i++) {
                 File file = new File(((String) readList.get(i).get(KEY_PATH)));
+                if (file.isDirectory()) {
+                    continue;
+                }
                 if (findBy == 1) {
                     if (FileUtils.isVideo(file.getName()) ) {
                         list1.add(readList.get(i));

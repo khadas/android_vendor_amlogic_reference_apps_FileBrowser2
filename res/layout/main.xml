@@ -38,7 +38,8 @@
                 android:layout_height="46dp"
                 android:background="@drawable/btn_round_selector"/>
             <ToggleButton style="@style/btn_style"
-                android:layout_width="80dp"
+                android:scaleType="center"
+                android:layout_width="76dp"
                 android:layout_height="34dp"
                 android:id="@+id/btn_mode"
                 android:background="@drawable/btn_mode"
@@ -49,12 +50,24 @@
                 android:id="@+id/btn_edit"
                 android:background="@drawable/btn_edit"/>
             -->
+
             <ImageButton
+                android:scaleType="center"
+                style="@style/btn_style"
+                android:id="@+id/btn_edit"
+                android:layout_gravity="center"
+                android:src="@mipmap/main_edit"
+                android:layout_width="76dp"
+                android:layout_height="34dp"
+                android:background="@drawable/btn_box_selector"/>
+
+            <ImageButton
+                android:scaleType="center"
                 style="@style/btn_style"
                 android:id="@+id/btn_sort"
                 android:layout_gravity="center"
                 android:src="@mipmap/main_sort"
-                android:layout_width="80dp"
+                android:layout_width="76dp"
                 android:layout_height="34dp"
                 android:background="@drawable/btn_box_selector"/>
             <Button style="@style/btn_style"
@@ -63,11 +76,12 @@
                 android:background="@drawable/btn_parent"/>
 
             <ImageButton
+                android:scaleType="center"
                 style="@style/btn_style"
                 android:id="@+id/btn_listswitch"
                 android:layout_gravity="center"
                 android:src="@mipmap/main_show"
-                android:layout_width="80dp"
+                android:layout_width="76dp"
                 android:layout_height="34dp"
                 android:background="@drawable/btn_box_selector"/>
             <Button style="@style/btn_style"
@@ -75,12 +89,14 @@
                 android:visibility="gone"
                 android:background="@drawable/btn_help"/>
             <ImageButton
+                android:scaleType="center"
                 android:id="@+id/btn_search"
                 android:layout_gravity="center"
                 android:src="@mipmap/main_search"
-                android:layout_width="80dp"
+                android:layout_width="76dp"
                 android:layout_height="34dp"
                 android:background="@drawable/btn_box_selector"/>
+
         </LinearLayout>
     <!--</HorizontalScrollView>-->
 

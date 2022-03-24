@@ -16,6 +16,6 @@
         android:gravity="center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginLeft="40dp"
-        android:text="视频"/>
+        android:layout_marginLeft="10dp"
+        android:text=""/>
 </LinearLayout>

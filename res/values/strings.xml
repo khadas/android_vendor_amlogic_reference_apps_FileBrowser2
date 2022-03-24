@@ -95,12 +95,20 @@ DROP TABLE IF EXISTS file_thumbnails_table
     <string name="Toast_copy_fail">Copy Failed</string>
     <string name="Toast_no_sdcard">No TF Card!</string>
     <string name="Thumbnail_unsupport">Thumbnail mode unsupported in attachment adding. </string>
+
+    <string name="usb_toast_hint">Please select the action you want to perform</string>
+    <string name="usb_toast_open_usb">Open USB</string>
+    <string name="usb_toast_open_video">Video</string>
+    <string name="usb_toast_open_music">Music</string>
+    <string name="usb_toast_open_picture">Picture</string>
+    <string name="usb_toast_open_document">Document</string>
+
     <string-array name="sort">
-        <item>全部</item>
-        <item>视频</item>
-        <item>音乐</item>
-        <item>图片</item>
-        <item>应用</item>
-        <item>文档</item>
+        <item>ALL</item>
+        <item>Video</item>
+        <item>Music</item>
+        <item>Picture</item>
+        <item>APK</item>
+        <item>Document</item>
     </string-array>
 </resources>
