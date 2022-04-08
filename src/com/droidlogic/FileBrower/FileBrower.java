@@ -507,7 +507,6 @@ public class FileBrower extends Activity {
         if (!(file.exists())) {
             cur_path = FileListManager.STORAGE;
         }*/
-        System.out.println("sunkun-cur_path--"+cur_path);
         if (cur_path.equals(FileListManager.STORAGE)) {
             DeviceScan();
         } else if (cur_path.equals("")) {
@@ -617,7 +616,7 @@ public class FileBrower extends Activity {
             }
         });
         local_mode = false;
-        cur_path = settings.getString("cur_path", FileListManager.STORAGE);
+        // cur_path = settings.getString("cur_path", FileListManager.STORAGE);
         try {
             Bundle bundle = this.getIntent().getExtras();
             if (!bundle.getString("cur_path").equals("")) {
@@ -1074,21 +1073,40 @@ public class FileBrower extends Activity {
 
             // TODO Auto-generated method stub
             Intent intent = new Intent();
-            intent.setAction(android.content.Intent.ACTION_VIEW);
+
             String type = "*/*";
             File f = new File(path);
             type = mFileListManager.CheckMediaType(f);
             Log.i(TAG,"onScanCompleted file path = " + path);
             Log.i(TAG,"onScanCompleted file path = " + uri.toString());
-            intent.setDataAndType(uri,type);
-            try {
-                startActivity(intent);
+
+            if (FileUtils.isVideo(f.getName()) ) {
+                intent.setData(uri);
+                intent.setClassName("com.droidlogic.exoplayer2.demo", "com.droidlogic.videoplayer.MoviePlayer");
+            } else if (FileUtils.isMusic(f.getName())) {
+                intent.setData(uri);
+                intent.setClassName("com.droidlogic.musicplayer", "com.droidlogic.musicplayer.MainActivity");
+            } else if (FileUtils.isPhoto(f.getName())) {
+                intent.setData(uri);
+                intent.setClassName("com.droidlogic.imageplayer", "com.droidlogic.imageplayer.FullImageActivity");
+            } else {
+                intent.setAction(android.content.Intent.ACTION_VIEW);
+                intent.setDataAndType(uri,type);
             }
-            catch (ActivityNotFoundException e) {
-                Toast.makeText(FileBrower.this,
-                getText(R.string.Toast_msg_no_applicaton),
-                Toast.LENGTH_SHORT).show();
+            if (getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+                Intent intent2 = new Intent();
+                intent2.setAction(android.content.Intent.ACTION_VIEW);
+                intent2.setDataAndType(uri,type);
+                try {
+                    startActivity(intent2);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(FileBrower.this,
+                            getText(R.string.Toast_msg_no_applicaton),
+                            Toast.LENGTH_SHORT).show();
+                }
+                return;
             }
+            startActivity(intent);
 
             filePaths = null;
             mimeTypes = null;

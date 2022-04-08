@@ -1878,14 +1878,14 @@ public class FileUtils
         if (var0.lastIndexOf(".") == -1) {
             return false;
         }
-        var0 = var0.substring(var0.lastIndexOf("."));
+        var0 = var0.substring(var0.lastIndexOf(".") + 1);
         String var1 = var0.toLowerCase();
         String[] var2 = video_extensions.split(",");
         String[] var3 = var2;
         int var4 = var2.length;
         for (int var5 = 0; var5 < var4; ++var5) {
             String var6 = var3[var5];
-            if (var1.endsWith(var6)) {
+            if (var1.equals(var6)) {
                 return true;
             }
         }
@@ -1922,7 +1922,7 @@ public class FileUtils
 
         for (int var4 = 0; var4 < var3; ++var4) {
             String var5 = var2[var4];
-            if (var1.endsWith(var5)) {
+            if (var1.equals(var5)) {
                 return true;
             }
         }

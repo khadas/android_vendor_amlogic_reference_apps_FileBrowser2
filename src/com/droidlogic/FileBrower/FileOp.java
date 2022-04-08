@@ -101,25 +101,25 @@ public class FileOp {
 
     /** getFileTypeImg */
     public static Object getFileTypeImg(String filename) {
-        if (FileListManager.isMusic(filename)) {
+        if (FileUtils.isMusic(filename)) {
             return R.drawable.item_type_music;
-        } else if (FileListManager.isPhoto(filename)) {
+        } else if (FileUtils.isPhoto(filename)) {
             return R.drawable.item_type_photo;
-        } else if (FileListManager.isVideo(filename)) {
+        } else if (FileUtils.isVideo(filename)) {
             return R.drawable.item_type_video;
-        } else if (FileListManager.isApk(filename)) {
+        } else if (FileUtils.isApk(filename)) {
             return R.drawable.item_type_apk;
         } else
             return R.drawable.item_type_file;
     }
     public static Object getThumbImage(String filename) {
-        if (FileListManager.isMusic(filename)) {
+        if (FileUtils.isMusic(filename)) {
             return R.drawable.item_preview_music;
-        } else if (FileListManager.isPhoto(filename)) {
+        } else if (FileUtils.isPhoto(filename)) {
             return R.drawable.item_preview_photo;
-        } else if (FileListManager.isVideo(filename)) {
+        } else if (FileUtils.isVideo(filename)) {
             return R.drawable.item_preview_video;
-        } else if (FileListManager.isApk(filename)) {
+        } else if (FileUtils.isApk(filename)) {
             return R.drawable.item_preview_apk;
         } else
             return R.drawable.item_preview_file;

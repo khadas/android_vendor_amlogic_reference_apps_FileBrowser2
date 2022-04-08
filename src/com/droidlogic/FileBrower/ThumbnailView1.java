@@ -16,6 +16,8 @@
 ******************************************************************/
 package com.droidlogic.FileBrower;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.storage.*;
 import java.io.File;
 import java.util.Arrays;
@@ -46,8 +48,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -60,9 +65,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
@@ -81,11 +88,14 @@ import com.droidlogic.app.FileListManager;
 
 import android.bluetooth.BluetoothAdapter;
 
-    /** Called when the activity is first created. */
+import androidx.annotation.RequiresApi;
+
+/** Called when the activity is first created. */
 public class ThumbnailView1 extends Activity{
     public static final String TAG = "ThumbnailView";
 
     private List<Map<String, Object>> mList;
+    private List<Map<String, Object>> sList;
     private boolean mListLoaded = false;
     private static final int LOAD_DIALOG_ID = 4;
     private ProgressDialog load_dialog;
@@ -134,6 +144,18 @@ public class ThumbnailView1 extends Activity{
     private ListView lv_thumb_type;
     private FileTypeAdapter fileTypeAdapter;
     private List<Map<String, Object>> readList = new ArrayList<>();
+    private GridLayout gridLayout;
+    private String[] mStrings = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N",
+            "O","P","Q","R","S","D","U","V","W","X","Y","Z","0","1",
+            "2", "3","4","5","6","7","8","9"};
+    private TextView tv_search;
+    private Button btClear;
+    private Button btDel;
+    private LinearLayout search_input;
+    private StringBuilder setText = new StringBuilder("");
+    private SimpleAdapter simpleAdapter2;
+    private boolean isSearch = false;
+    private boolean isSearchItemClick = false;
 
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
@@ -569,6 +591,13 @@ public class ThumbnailView1 extends Activity{
         lv_thumb_type = findViewById(R.id.lv_thumb_type);
         fileTypeAdapter = new FileTypeAdapter(this, typeName, typeIconNormal, typeIconFocused);
         lv_thumb_type.setAdapter(fileTypeAdapter);
+        gridLayout = findViewById(R.id.gl);
+        gridLayout.setColumnCount(6);
+        gridLayout.setRowCount(6);
+        search_input = findViewById(R.id.search_thumb_input);
+        tv_search = findViewById(R.id.tv_search);
+        btClear = findViewById(R.id.bt_clear);
+        btDel = findViewById(R.id.bt_del);
         lv_thumb_type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -918,7 +947,7 @@ public class ThumbnailView1 extends Activity{
         });
 
         /*edit button*/
-        /*Button btn_thumbedit = (Button) findViewById(R.id.btn_thumbedit);
+        ImageButton btn_thumbedit = (ImageButton) findViewById(R.id.btn_thumbedit);
         btn_thumbedit.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (!cur_path.equals(FileListManager.STORAGE))
@@ -929,13 +958,36 @@ public class ThumbnailView1 extends Activity{
                         Toast.LENGTH_SHORT).show();
                 }
             }
-        });*/
+        });
 
         /* btn_help_listener */
         Button btn_thumbhelp = (Button) findViewById(R.id.btn_thumbhelp);
         btn_thumbhelp.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 showDialog(HELP_DIALOG_ID);
+            }
+        });
+
+        ImageButton btn_search = findViewById(R.id.btn_thumb_search);
+        btn_search.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isSearch = true;
+                initKeyBroad();
+                sList = new ArrayList<>();
+                simpleAdapter2 = new SimpleAdapter(ThumbnailView1.this,
+                        sList,
+                        R.layout.gridview_item,
+                        new String[]{
+                                KEY_TYPE,
+                                KEY_SELE,
+                                KEY_NAME},
+                        new int[]{
+                                R.id.itemImage,
+                                R.id.itemMark,
+                                R.id.itemText}
+                );
+                ThumbnailView.setAdapter(simpleAdapter2);
             }
         });
 
@@ -1597,6 +1649,10 @@ public class ThumbnailView1 extends Activity{
             } else {
                 for (int i=0; i<readList.size(); i++) {
                     File file = new File(((String) readList.get(i).get(KEY_PATH)));
+                    if (file.isDirectory()) {
+                        continue;
+                    }
+
                     if (findBy == 1) {
                         if (FileUtils.isVideo(file.getName()) ) {
                             list1.add(readList.get(i));
@@ -1622,4 +1678,97 @@ public class ThumbnailView1 extends Activity{
             }
             return list1;
         }
+
+    private void initKeyBroad() {
+        search_input.setVisibility(View.VISIBLE);
+        lv_thumb_type.setVisibility(View.GONE);
+        gridLayout.removeAllViews();
+        for (int i = 0; i < mStrings.length; i++) {
+            Button textView = new Button(this);
+            textView.setPadding(1, 1, 1, 1);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width =34;
+            params.height =50;
+
+            textView.setBackgroundColor(Color.TRANSPARENT);
+            textView.setTextColor(Color.WHITE);
+            textView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean b) {
+                    if (b) {
+                        textView.setBackgroundColor(Color.WHITE);
+                        textView.setTextColor(Color.BLACK);
+                    } else {
+                        textView.setBackgroundColor(Color.TRANSPARENT);
+                        textView.setTextColor(Color.WHITE);
+                    }
+                }
+            });
+
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    setText.append(textView.getText());
+                    tv_search.setText(setText);
+                }
+            });
+            textView.setGravity(Gravity.CENTER);
+            textView.setText(mStrings[i]);
+            gridLayout.addView(textView,params);
+        }
+
+        btClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setText.delete(0, setText.length());
+                tv_search.setText(setText);
+            }
+        });
+
+        btDel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (setText.length() < 1) {
+                    return;
+                } else if (setText.length() == 1) {
+                    setText = new StringBuilder("");
+                } else {
+                    setText = new StringBuilder(setText.substring(0, setText.length()-1));
+                }
+                tv_search.setText(setText);
+            }
+        });
+
+        tv_search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                List<Map<String, Object>> list = GetTargetList.listsearch(readList, charSequence.toString());
+                sList.clear();
+                sList.addAll(list);
+                Collections.sort(sList, new Comparator<Map<String, Object>>() {
+                    public int compare(Map<String, Object> object1, Map<String, Object> object2) {
+                        File file1 = new File((String) object1.get(KEY_PATH));
+                        File file2 = new File((String) object2.get(KEY_PATH));
+
+                        if ((file1.isFile() && file2.isFile()) || (file1.isDirectory() && file2.isDirectory())) {
+                            return ((String) object1.get(KEY_NAME)).toLowerCase()
+                                    .compareTo(((String) object2.get(KEY_NAME)).toLowerCase());
+                        } else {
+                            return file2.isFile() ? -1 : 1;
+                        }
+                    }
+                });
+                simpleAdapter2.notifyDataSetChanged();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+    }
 }

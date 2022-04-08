@@ -120,6 +120,7 @@
             <ListView
                 android:divider="@null"
                 android:id="@+id/lv_type"
+                android:nextFocusRight="@id/listview"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"/>
             <include
@@ -138,6 +139,7 @@
             android:background="#9f9f9f"/>
 
         <ListView
+            android:nextFocusLeft="@id/lv_type"
             android:id="@+id/listview"
             android:layout_width="0dp"
             android:layout_weight="6"
