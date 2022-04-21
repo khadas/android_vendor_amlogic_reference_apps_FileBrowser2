@@ -91,13 +91,14 @@ DROP TABLE IF EXISTS file_thumbnails_table
     <string name="Toast_copy_fail">拷貝失敗！</string>
     <string name="Toast_no_sdcard">TF卡不存在！</string>
     <string name="Thumbnail_unsupport">添加附件時不支持縮略圖糢式. </string>
-    <string name="usb_toast_hint">请选择你要执行的操作</string>
-    <string name="usb_toast_open_usb">打开U盘</string>
-    <string name="usb_toast_open_video">视频</string>
-    <string name="usb_toast_open_music">音乐</string>
-    <string name="usb_toast_open_picture">图片</string>
-    <string name="usb_toast_open_document">文档</string>
-
+    <string name="usb_toast_hint">請選擇你要執行的操作</string>
+    <string name="usb_toast_open_usb">打開U盤</string>
+    <string name="usb_toast_open_video">視頻</string>
+    <string name="usb_toast_open_music">音樂</string>
+    <string name="usb_toast_open_picture">圖片</string>
+    <string name="usb_toast_open_document">文檔</string>
+    <string name="empty_folder_str">空資料夾</string>
+    <string name="back_parent_folder_str">按返回鍵回到上級目錄</string>
     <string-array name="sort">
         <item>全部</item>
         <item>視頻</item>

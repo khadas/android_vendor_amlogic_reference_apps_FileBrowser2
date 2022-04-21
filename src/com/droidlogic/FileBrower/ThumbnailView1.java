@@ -588,6 +588,7 @@ public class ThumbnailView1 extends Activity{
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
         ThumbnailView = (GridView)findViewById(R.id.mygridview);
+        ThumbnailView.setEmptyView(findViewById(R.id.empty_view));
         lv_thumb_type = findViewById(R.id.lv_thumb_type);
         fileTypeAdapter = new FileTypeAdapter(this, typeName, typeIconNormal, typeIconFocused);
         lv_thumb_type.setAdapter(fileTypeAdapter);
@@ -598,21 +599,10 @@ public class ThumbnailView1 extends Activity{
         tv_search = findViewById(R.id.tv_search);
         btClear = findViewById(R.id.bt_clear);
         btDel = findViewById(R.id.bt_del);
-        lv_thumb_type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                fileTypeAdapter.setCurrentItem(i);
-                fileTypeAdapter.setItemClick(true);
-                fileTypeAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
-        });
         lv_thumb_type.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                fileTypeAdapter.setCurrentItem(position);
                 ThumbnailAdapter1 adapter1 = new ThumbnailAdapter1(ThumbnailView1.this,
                         sortType(position),
                         R.layout.gridview_item,

@@ -100,6 +100,8 @@ DROP TABLE IF EXISTS file_thumbnails_table
     <string name="usb_toast_open_music">音乐</string>
     <string name="usb_toast_open_picture">图片</string>
     <string name="usb_toast_open_document">文档</string>
+    <string name="empty_folder_str">空文件夹</string>
+    <string name="back_parent_folder_str">按返回键回到上级目录</string>
     <string-array name="sort">
         <item>全部</item>
         <item>视频</item>

@@ -22,7 +22,6 @@ public class FileTypeAdapter extends BaseAdapter {
     private int[] typeIconNormal;
     private int[] typeIconFocused;
     private int mCurrentItem = 0;
-    private boolean isClick = false;
 
     public FileTypeAdapter(Context context, String[] typeName, int[] typeIconNormal, int[] typeIconFocused) {
         this.mContext = context;
@@ -60,7 +59,7 @@ public class FileTypeAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
         holder.typeIcon.setImageDrawable(mContext.getDrawable(typeIconNormal[i]));
-        if (mCurrentItem == i && isClick) {
+        if (mCurrentItem == i) {
             holder.typeName.setTextColor(Color.WHITE);
             holder.typeIcon.setAlpha(1.0f);
         } else {
@@ -78,9 +77,7 @@ public class FileTypeAdapter extends BaseAdapter {
 
     public void setCurrentItem(int currentItem) {
         this.mCurrentItem = currentItem;
+        notifyDataSetChanged();
     }
 
-    public void setItemClick(boolean click) {
-        this.isClick = click;
-    }
 }

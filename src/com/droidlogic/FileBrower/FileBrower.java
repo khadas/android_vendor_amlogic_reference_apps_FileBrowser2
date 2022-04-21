@@ -476,7 +476,6 @@ public class FileBrower extends Activity {
                             mSimpleAdapter.notifyDataSetChanged();
 
                             fileTypeAdapter.setCurrentItem(Integer.parseInt(show_by));
-                            fileTypeAdapter.setItemClick(true);
                             fileTypeAdapter.notifyDataSetChanged();
                             show_by = "";
                         }
@@ -593,6 +592,7 @@ public class FileBrower extends Activity {
 
         /* setup file list */
         lv = (ListView) findViewById(R.id.listview);
+        lv.setEmptyView(findViewById(R.id.empty_view));
         gridLayout = findViewById(R.id.gl);
         gridLayout.setColumnCount(6);
         gridLayout.setRowCount(6);
@@ -603,18 +603,6 @@ public class FileBrower extends Activity {
         fileTypeAdapter = new FileTypeAdapter(this, typeName, typeIconNormal, typeIconFocused);
         lv_type = findViewById(R.id.lv_type);
         lv_type.setAdapter(fileTypeAdapter);
-        lv_type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                fileTypeAdapter.setCurrentItem(i);
-                fileTypeAdapter.setItemClick(true);
-                fileTypeAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
-        });
         local_mode = false;
         // cur_path = settings.getString("cur_path", FileListManager.STORAGE);
         try {
@@ -705,6 +693,7 @@ public class FileBrower extends Activity {
         lv_type.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                fileTypeAdapter.setCurrentItem(i);
                 if (i == 0) {
                     lv.setAdapter(getFileListAdapterSorted(FileListManager.STORAGE, lv_sort_flag));
                     return;
@@ -1065,7 +1054,8 @@ public class FileBrower extends Activity {
 
         @Override
         public void onScanCompleted(String path, Uri uri) {
-            scanTimes ++;
+            if (uri == null) return;
+            scanTimes++;
             if (scanTimes == filePaths.length) {
                 mediaScanConn.disconnect();
                 scanTimes = 0;

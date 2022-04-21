@@ -102,7 +102,8 @@ DROP TABLE IF EXISTS file_thumbnails_table
     <string name="usb_toast_open_music">Music</string>
     <string name="usb_toast_open_picture">Picture</string>
     <string name="usb_toast_open_document">Document</string>
-
+    <string name="empty_folder_str">Empty Folder</string>
+    <string name="back_parent_folder_str">press the exit key to return to the parent directory</string>
     <string-array name="sort">
         <item>ALL</item>
         <item>Video</item>
