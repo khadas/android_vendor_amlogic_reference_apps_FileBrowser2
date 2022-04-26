@@ -38,7 +38,7 @@ public class ThumbnailAdapter1 extends SimpleAdapter{
         // TODO Auto-generated constructor stub
     }
 
-    public void setViewImage (ImageView v, String value) {
+    /*public void setViewImage (ImageView v, String value) {
         ThumbnailCursor cc = null;
         try {
             cc = ThumbnailView1.db.getThumbnailByPath(value);
@@ -57,5 +57,5 @@ public class ThumbnailAdapter1 extends SimpleAdapter{
         } finally {
             if (cc != null) cc.close();
         }
-    }
+    }*/
 }

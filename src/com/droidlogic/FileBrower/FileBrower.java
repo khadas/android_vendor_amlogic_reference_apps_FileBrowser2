@@ -69,12 +69,14 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.Gravity;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -158,7 +160,7 @@ public class FileBrower extends Activity {
     public static FileMarkCursor myCursor;
     public static ThumbnailCursor myThumbCursor;
     public static Handler mProgressHandler;
-    private ListView lv;
+    private AbsListView lv;
     private TextView tv;
     private ToggleButton btn_mode;
     private List<String> devList = new ArrayList<String>();
@@ -200,10 +202,12 @@ public class FileBrower extends Activity {
     private boolean isSearch = false;
     private boolean isSearchItemClick = false;
     private boolean isBtnHome = false;
-    private ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private ExecutorService executorService = Executors.newFixedThreadPool(8);
     private SimpleAdapter mSimpleAdapter;
     private List typeList = new ArrayList<Map<String, Object>>();
     private UsbBroadCastReceiver usbBroadCastReceiver;
+    private boolean isThumb = false;
+    private int selectedItem = 0;
     Comparator  mFileComparator = new Comparator<File>() {
         @Override
         public int compare(File o1, File o2) {
@@ -231,13 +235,8 @@ public class FileBrower extends Activity {
 
             if (action.equals(Intent.ACTION_MEDIA_EJECT)) {
                 isMount = false;
-                if (cur_path.startsWith(path)) {
-                    cur_path = FileListManager.STORAGE;
-                    DeviceScan();
-                }
-                if (cur_path.equals(FileListManager.STORAGE)) {
-                    DeviceScan();
-                }
+                cur_path = FileListManager.STORAGE;
+                DeviceScan();
                 if (FileOp.IsBusy) {
                     if (isOperateInDirectory(path, FileOp.source_path) ||
                         isOperateInDirectory(path, FileOp.target_path)) {
@@ -248,31 +247,19 @@ public class FileBrower extends Activity {
             else if ((action.equals ("com.droidvold.action.MEDIA_UNMOUNTED")
                 || action.equals ("com.droidvold.action.MEDIA_EJECT")) && !path.equals("/dev/null")) {
                 isMount = false;
-                if (cur_path.startsWith(path)) {
-                    cur_path = FileListManager.STORAGE;
-                    DeviceScan();
-                }
-                if (cur_path.equals(FileListManager.STORAGE)) {
-                    DeviceScan();
-                }
+                cur_path = FileListManager.STORAGE;
+                DeviceScan();
             }
             else if (action.equals(Intent.ACTION_MEDIA_MOUNTED) || action.equals ("com.droidvold.action.MEDIA_MOUNTED")) {
-                if (cur_path.equals(FileListManager.STORAGE)) {
-                    if (isMount) {
-                        return;
-                    }
-                    DeviceScan();
+                if (isMount) {
+                    return;
                 }
+                DeviceScan();
                 isMount = true;
             } else if (action.equals(Intent.ACTION_MEDIA_UNMOUNTED)) {
                 isMount = false;
-                if (cur_path.startsWith(path)) {
-                    cur_path = FileListManager.STORAGE;
-                    DeviceScan();
-                }
-                if (cur_path.equals(FileListManager.STORAGE)) {
-                    DeviceScan();
-                }
+                cur_path = FileListManager.STORAGE;
+                DeviceScan();
             }
             else if (action.equals(Intent.ACTION_SCREEN_OFF)) {
                 if (sort_dialog != null)
@@ -591,7 +578,7 @@ public class FileBrower extends Activity {
         btn_mode.setChecked(settings.getBoolean("isChecked", false));
 
         /* setup file list */
-        lv = (ListView) findViewById(R.id.listview);
+        lv = (AbsListView) findViewById(R.id.listview);
         lv.setEmptyView(findViewById(R.id.empty_view));
         gridLayout = findViewById(R.id.gl);
         gridLayout.setColumnCount(6);
@@ -694,29 +681,21 @@ public class FileBrower extends Activity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 fileTypeAdapter.setCurrentItem(i);
+                SimpleAdapter simpleAdapter;
                 if (i == 0) {
+                    cur_path = FileListManager.STORAGE;
                     lv.setAdapter(getFileListAdapterSorted(FileListManager.STORAGE, lv_sort_flag));
                     return;
                 }
                 cur_path = "";
-                SimpleAdapter simpleAdapter = new SimpleAdapter(FileBrower.this,
-                        sortType(i),
-                        R.layout.filelist_item,
-                        new String[]{
-                                KEY_TYPE,
-                                KEY_NAME,
-                                KEY_SELE,
-                                KEY_SIZE,
-                                KEY_DATE,
-                                KEY_RDWR},
-                        new int[]{
-                                R.id.item_type,
-                                R.id.item_name,
-                                R.id.item_sel,
-                                R.id.item_size,
-                                R.id.item_date,
-                                R.id.item_rw}
-                );
+                selectedItem = i;
+                if (!isThumb) {
+                    simpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                            sortType(i), false, (GridView) lv);
+                } else {
+                    simpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                            sortType(i), true, (GridView) lv);
+                }
                 lv.setAdapter(simpleAdapter);
             }
         });
@@ -796,24 +775,14 @@ public class FileBrower extends Activity {
                 isSearch = true;
                 initKeyBroad();
                 sList = new ArrayList<>();
-                simpleAdapter2 = new SimpleAdapter(FileBrower.this,
-                        sList,
-                        R.layout.filelist_item,
-                        new String[]{
-                                KEY_TYPE,
-                                KEY_NAME,
-                                KEY_SELE,
-                                KEY_SIZE,
-                                KEY_DATE,
-                                KEY_RDWR},
-                        new int[]{
-                                R.id.item_type,
-                                R.id.item_name,
-                                R.id.item_sel,
-                                R.id.item_size,
-                                R.id.item_date,
-                                R.id.item_rw}
-                );
+                if (!isThumb) {
+                    simpleAdapter2 = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                            sList, false, (GridView) lv);
+                } else {
+                    simpleAdapter2 = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                            sList, true, (GridView) lv);
+                }
+
                 lv.setAdapter(simpleAdapter2);
             }
         });
@@ -828,16 +797,36 @@ public class FileBrower extends Activity {
                     Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    FileOp.SetMode(true);
-                    Intent intent = new Intent();
-                    intent.setClass(FileBrower.this, ThumbnailView1.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("readList", (Serializable) readList);
-                    bundle.putString("sort_flag", lv_sort_flag);
-                    intent.putExtras(bundle);
-                    local_mode = true;
-                    FileBrower.this.finish();
-                    startActivity(intent);
+                    SimpleAdapter simpleAdapter;
+                    if (isThumb) {
+                        isThumb = false;
+                        if (cur_path.equals("")) {
+                            simpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                                    sortType(selectedItem), false, (GridView) lv);
+                        } else if (cur_path.equals(FileListManager.STORAGE)) {
+                            List<Map<String, Object>> list = getDeviceListData();
+                            simpleAdapter = SimpleAdapterHelper.setSdcardList(FileBrower.this,
+                                    list, false, (GridView) lv);
+                        } else {
+                            simpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                                    getFileListDataSortedAsync(cur_path, lv_sort_flag), false, (GridView) lv);
+                        }
+                    } else {
+                        isThumb = true;
+                        if (cur_path.equals("")) {
+                            simpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                                    sortType(selectedItem), true, (GridView) lv);
+                        } else if (cur_path.equals(FileListManager.STORAGE)) {
+                            List<Map<String, Object>> list = getDeviceListData();
+                            simpleAdapter = SimpleAdapterHelper.setSdcardList(FileBrower.this,
+                                    list, true, (GridView) lv);
+                        } else {
+                            simpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                                    getFileListDataSortedAsync(cur_path, lv_sort_flag), true, (GridView) lv);
+                        }
+                    }
+
+                    lv.setAdapter(simpleAdapter);
                 }
             }
         });
@@ -945,6 +934,12 @@ public class FileBrower extends Activity {
             db.deleteAllFileMark();
         }
         db.close();
+        db = null;
+      if (usbBroadCastReceiver != null) {
+            unregisterReceiver(usbBroadCastReceiver);
+            usbBroadCastReceiver = null;
+        }
+        executorService.shutdownNow();
     }
     private final class ScannPathTask extends AsyncTask<String, Void, Void> {
 
@@ -1075,7 +1070,7 @@ public class FileBrower extends Activity {
                 intent.setClassName("com.droidlogic.exoplayer2.demo", "com.droidlogic.videoplayer.MoviePlayer");
             } else if (FileUtils.isMusic(f.getName())) {
                 intent.setData(uri);
-                intent.setClassName("com.droidlogic.musicplayer", "com.droidlogic.musicplayer.MainActivity");
+                intent.setClassName("com.droidlogic.musicplayer", "com.droidlogic.musicplayer.PlaybackActivity");
             } else if (FileUtils.isPhoto(f.getName())) {
                 intent.setData(uri);
                 intent.setClassName("com.droidlogic.imageplayer", "com.droidlogic.imageplayer.FullImageActivity");
@@ -1169,7 +1164,6 @@ public class FileBrower extends Activity {
         if (!show_by.equals("")) {
             List<Map<String, Object>> list = getDeviceListData();
             if (!isBtnHome) {
-                showDialog(LOAD_DIALOG_ID);
                 readList.clear();
                 new Thread(new Runnable() {
                     @Override
@@ -1177,33 +1171,19 @@ public class FileBrower extends Activity {
                         for (int i=0;i<list.size();i++) {
                             read(((String) list.get(i).get(KEY_PATH)));
                         }
-                        if (null != mProgressHandler)
-                            mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 12));
 
                     }
                 }).start();
             } else {
                 isBtnHome = false;
             }
-
-            mSimpleAdapter = new SimpleAdapter(FileBrower.this,
-                    typeList,
-                    R.layout.filelist_item,
-                    new String[]{
-                            KEY_TYPE,
-                            KEY_NAME,
-                            KEY_SELE,
-                            KEY_SIZE,
-                            KEY_DATE,
-                            KEY_RDWR},
-                    new int[]{
-                            R.id.item_type,
-                            R.id.item_name,
-                            R.id.item_sel,
-                            R.id.item_size,
-                            R.id.item_date,
-                            R.id.item_rw}
-            );
+            if (!isThumb) {
+                mSimpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                        typeList, false, (GridView) lv);
+            } else {
+                mSimpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                        typeList, true, (GridView) lv);
+            }
             lv.setAdapter(mSimpleAdapter);
         } else {
             lv.setAdapter(getDeviceListAdapter());
@@ -1214,7 +1194,6 @@ public class FileBrower extends Activity {
     getDeviceListAdapter() {
         List<Map<String, Object>> list = getDeviceListData();
         if (!isBtnHome) {
-            showDialog(LOAD_DIALOG_ID);
             readList.clear();
             new Thread(new Runnable() {
                 @Override
@@ -1222,27 +1201,13 @@ public class FileBrower extends Activity {
                     for (int i=0;i<list.size();i++) {
                         read(((String) list.get(i).get(KEY_PATH)));
                     }
-                    if (null != mProgressHandler)
-                        mProgressHandler.sendMessage(Message.obtain(mProgressHandler, 12));
-
                 }
             }).start();
         } else {
             isBtnHome = false;
         }
         // TODO Auto-generated method stub
-        return new SimpleAdapter(FileBrower.this, list,
-            R.layout.device_item,
-            new String[]{
-                KEY_TYPE,
-                KEY_NAME,
-                KEY_RDWR
-            },
-            new int[]{
-                R.id.device_type,
-                R.id.device_name,
-                R.id.device_rw}
-            );
+        return SimpleAdapterHelper.setSdcardList(FileBrower.this, list, isThumb, (GridView) lv);
     }
 
     private List<Map<String, Object>> getDeviceListData() {
@@ -1729,24 +1694,13 @@ public class FileBrower extends Activity {
 
     /** getFileListAdapter */
     private SimpleAdapter getFileListAdapter(String path) {
-        return new SimpleAdapter(FileBrower.this,
-            getFileListData(path),
-            R.layout.filelist_item,
-            new String[]{
-                KEY_TYPE,
-                KEY_NAME,
-                KEY_SELE,
-                KEY_SIZE,
-                KEY_DATE,
-                KEY_RDWR},
-            new int[]{
-                R.id.item_type,
-                R.id.item_name,
-                R.id.item_sel,
-                R.id.item_size,
-                R.id.item_date,
-                R.id.item_rw}
-        );
+        if (!isThumb) {
+            return SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                    getFileListData(path), false, (GridView) lv);
+        } else {
+            return SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                    getFileListData(path), true, (GridView) lv);
+        }
     }
 
     /** getFileListData */
@@ -1796,38 +1750,16 @@ public class FileBrower extends Activity {
     /** getFileListAdapterSorted */
     private SimpleAdapter getFileListAdapterSorted(String path, String sort_type) {
         if (path.equals(FileListManager.STORAGE)) {
-            return new SimpleAdapter(FileBrower.this,
-                getDeviceListData(),
-                R.layout.device_item,
-                new String[]{
-                    KEY_TYPE,
-                    KEY_NAME,
-                    KEY_RDWR},
-                new int[]{
-                    R.id.device_type,
-                    R.id.device_name,
-                    R.id.device_rw}
-            );
+            return SimpleAdapterHelper.setSdcardList(FileBrower.this, getDeviceListData(), isThumb, (GridView) lv);
         }
         else {
-            return new SimpleAdapter(FileBrower.this,
-                getFileListDataSorted(path, sort_type),
-                R.layout.filelist_item,
-                new String[]{
-                    KEY_TYPE,
-                    KEY_NAME,
-                    KEY_SELE,
-                    KEY_SIZE,
-                    KEY_DATE,
-                    KEY_RDWR},
-                new int[]{
-                    R.id.item_type,
-                    R.id.item_name,
-                    R.id.item_sel,
-                    R.id.item_size,
-                    R.id.item_date,
-                    R.id.item_rw}
-            );
+            if (!isThumb) {
+                return SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                        getFileListDataSorted(path, sort_type), false, (GridView) lv);
+            } else {
+                return SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
+                        getFileListDataSorted(path, sort_type), true, (GridView) lv);
+            }
         }
     }
 
@@ -1853,25 +1785,25 @@ public class FileBrower extends Activity {
             return mList;
         }
     }
-    Object object = new Object();
-    private void read(String path){
-        File file = new File(path);
-        File[] files = file.listFiles();
+
+    private void read(String path) {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
+                File file = new File(path);
+                File[] files = file.listFiles();
                 List<Map<String, Object>> list109 =   getFileListDataSortedAsync(path, "by_name");
                 readList.addAll(list109);
+                if (files == null || files.length < 1) {
+                    return;
+                }
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory()) {
+                        read(files[i].getAbsolutePath());
+                    }
+                }
             }
         });
-        if (files == null || files.length < 1) {
-            return;
-        }
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-                read(files[i].getAbsolutePath());
-            }
-        }
     }
 
     private List<Map<String, Object>> sortType(int findBy) {
@@ -1880,6 +1812,9 @@ public class FileBrower extends Activity {
             list1.addAll(readList);
         } else {
             for (int i=0; i<readList.size(); i++) {
+                if (readList.get(i) == null) {
+                    return list1;
+                }
                 File file = new File(((String) readList.get(i).get(KEY_PATH)));
                 if (file.isDirectory()) {
                     continue;
@@ -2146,7 +2081,7 @@ public class FileBrower extends Activity {
                 isSearchItemClick = false;
                 return true;
             }
-            if (!cur_path.equals(FileListManager.STORAGE) && !isSearch) {
+            if (!cur_path.equals(FileListManager.STORAGE) && !cur_path.equals("") && !isSearch) {
                 File file = new File(cur_path);
                 String parent_path = file.getParent();
                 if (cur_path.equals(FileListManager.NAND) || parent_path.equals(FileListManager.MEDIA_RW)) {

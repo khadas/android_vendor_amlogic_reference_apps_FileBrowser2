@@ -146,7 +146,9 @@
             android:focusable="true"
             android:focusedByDefault="true">
 
-            <com.droidlogic.FileBrower.FileListView
+            <com.droidlogic.FileBrower.FileGridView
+                android:numColumns="1"
+                android:fastScrollEnabled="true"
                 android:id="@+id/listview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
