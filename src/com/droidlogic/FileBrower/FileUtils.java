@@ -1956,6 +1956,15 @@ public class FileUtils
         }
     }
 
+    public static boolean isNeedInVisible(String var0) {
+        String var1 = var0.toLowerCase();
+        if (var1.endsWith(".bat") || var1.endsWith(".bin")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static boolean isPlain(String var0) {
         String var1 = var0.toLowerCase();
         String[] var2 = plain_extensions;
@@ -1991,7 +2000,9 @@ public class FileUtils
                     var2.put("key_sele", "sele_no");
                     var2.put("key_rdwr", (Object)null);
                     var2.put("key_type", (Object)null);
-
+                    if (FileUtils.isNeedInVisible(var10)) {
+                        continue;
+                    }
                     mListFile.add(var2);
                 }
             }

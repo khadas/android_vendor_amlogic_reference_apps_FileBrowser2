@@ -80,4 +80,8 @@ public class FileTypeAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public int getCurrentItem() {
+        return mCurrentItem;
+    }
+
 }

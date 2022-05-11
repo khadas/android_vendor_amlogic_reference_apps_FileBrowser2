@@ -676,7 +676,21 @@ public class FileBrower extends Activity {
                 }
             }
         });
-
+        lv_type.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (fileTypeAdapter.getCurrentItem() == 0) {
+                    return false;
+                }
+                if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                    lv.setAdapter(getFileListAdapterSorted(FileListManager.STORAGE, lv_sort_flag));
+                    fileTypeAdapter.setCurrentItem(0);
+                    lv_type.setSelection(0);
+                    return true;
+                }
+                return false;
+            }
+        });
         lv_type.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -1907,9 +1921,18 @@ public class FileBrower extends Activity {
                 Collections.sort(list, new Comparator<Map<String, Object>>() {
                     public int compare(Map<String, Object> object1,
                     Map<String, Object> object2) {
-                        String fileDate1 = ((String) object1.get(KEY_DATE)).toLowerCase().split("|")[0];
-                        String fileDate2 = ((String) object2.get(KEY_DATE)).toLowerCase().split("|")[0];
-                        return (fileDate1).compareTo(fileDate2);
+                        File file1 = new File((String)object1.get(KEY_PATH));
+                        File file2 = new File((String)object2.get(KEY_PATH));
+                        long file_date1 = file1.lastModified();
+                        long file_date2 = file2.lastModified();
+                        long diff = file_date1 - file_date2;
+                        if (diff > 0) {
+                            return 1;
+                        } else if (diff == 0) {
+                            return 0;
+                        } else {
+                            return -1;
+                        }
                     }
                 });
             }
@@ -1917,9 +1940,18 @@ public class FileBrower extends Activity {
                 Collections.sort(list, new Comparator<Map<String, Object>>() {
                     public int compare(Map<String, Object> object1,
                     Map<String, Object> object2) {
-                        String fileSize1 = ((String) object1.get(KEY_SIZE)).toLowerCase().split("|")[0];
-                        String fileSize2 = ((String) object2.get(KEY_SIZE)).toLowerCase().split("|")[0];
-                        return (fileSize1).compareTo(fileSize2);
+                        File file1 = new File((String)object1.get(KEY_PATH));
+                        File file2 = new File((String)object2.get(KEY_PATH));
+                        long file_size1 = file1.length();
+                        long file_size2 = file2.length();
+                        long diff = file_size1 - file_size2;
+                        if (diff > 0) {
+                            return 1;
+                        } else if (diff == 0) {
+                            return 0;
+                        } else {
+                            return -1;
+                        }
                     }
                 });
             }
