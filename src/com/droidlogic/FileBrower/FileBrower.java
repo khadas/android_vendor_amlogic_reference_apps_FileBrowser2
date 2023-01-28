@@ -1201,6 +1201,7 @@ public class FileBrower extends Activity {
             lv.setAdapter(mSimpleAdapter);
         } else {
             lv.setAdapter(getDeviceListAdapter());
+            lv.requestFocus();
         }
     }
 
