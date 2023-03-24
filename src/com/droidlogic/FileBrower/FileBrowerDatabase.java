@@ -135,7 +135,7 @@ public class FileBrowerDatabase extends SQLiteOpenHelper {
 
     /** Returns a Cursor for file_mark_table query by file_path
      */
-    public FileMarkCursor getFileMarkByPath(String file_path) {
+    public synchronized FileMarkCursor getFileMarkByPath(String file_path) {
         file_path = file_path.replace("'", "''");
         String sql =  String.format(
                 FileMarkCursor.QUERY +
