@@ -54,6 +54,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -1139,8 +1140,42 @@ public class FileBrower extends Activity {
                 Toast.LENGTH_SHORT).show();
             }
         }
-        ScannPathTask task = new ScannPathTask();
-        task.execute(filePath);
+        Intent intent = new Intent();
+        String type = "*/*";
+        Uri uri = FileProvider.getUriForFile(this,
+                "com.droidlogic.filebrowser.fileprovider",
+                f);
+        if (FileUtils.isVideo(f.getName()) ) {
+            intent.setDataAndType(uri, "video/*");
+            intent.setClassName("com.droidlogic.exoplayer2.demo", "com.droidlogic.videoplayer.MoviePlayer");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else if (FileUtils.isMusic(f.getName())) {
+            intent.setDataAndType(uri, "audio/*");
+            intent.setClassName("com.droidlogic.musicplayer", "com.droidlogic.musicplayer.PlaybackActivity");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else if (FileUtils.isPhoto(f.getName())) {
+            intent.setDataAndType(uri, "image/*");
+            intent.setClassName("com.droidlogic.imageplayer", "com.droidlogic.imageplayer.FullImageActivity");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            type = mFileListManager.CheckMediaType(f);
+            intent.setAction(android.content.Intent.ACTION_VIEW);
+            intent.setDataAndType(uri,type);
+        }
+        if (getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+            type = mFileListManager.CheckMediaType(f);
+            Intent intent2 = new Intent();
+            intent2.setAction(android.content.Intent.ACTION_VIEW);
+            intent2.setDataAndType(uri,type);
+            try {
+                startActivity(intent2);
+            } catch (ActivityNotFoundException e) {
+            }
+            return;
+        }
+        startActivity(intent);
+        /*ScannPathTask task = new ScannPathTask();
+        task.execute(filePath);*/
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
