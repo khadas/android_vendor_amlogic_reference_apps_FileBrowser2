@@ -117,6 +117,7 @@ import java.util.concurrent.Executors;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
+import android.os.StrictMode;
 
 public class FileBrower extends Activity {
     public static final String TAG = "FileBrowser";
@@ -548,6 +549,11 @@ public class FileBrower extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        //for file uri, close the strict mode check
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        builder.detectFileUriExposure();
+         //end
         if (!Settings.canDrawOverlays(this)) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivity(intent);
@@ -1150,9 +1156,9 @@ public class FileBrower extends Activity {
             intent.setClassName("com.droidlogic.exoplayer2.demo", "com.droidlogic.videoplayer.MoviePlayer");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         } else if (FileUtils.isMusic(f.getName())) {
-            intent.setDataAndType(uri, "audio/*");
-            intent.setClassName("com.droidlogic.musicplayer", "com.droidlogic.musicplayer.PlaybackActivity");
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setAction(android.content.Intent.ACTION_VIEW);
+            type = mFileListManager.CheckMediaType(f);
+            intent.setDataAndType(Uri.fromFile(f),type);
         } else if (FileUtils.isPhoto(f.getName())) {
             intent.setDataAndType(uri, "image/*");
             intent.setClassName("com.droidlogic.imageplayer", "com.droidlogic.imageplayer.FullImageActivity");
