@@ -1159,6 +1159,8 @@ public class FileBrower extends Activity {
             intent.setAction(android.content.Intent.ACTION_VIEW);
             type = mFileListManager.CheckMediaType(f);
             intent.setDataAndType(Uri.fromFile(f),type);
+            startActivity(intent);
+            return;
         } else if (FileUtils.isPhoto(f.getName())) {
             intent.setDataAndType(uri, "image/*");
             intent.setClassName("com.droidlogic.imageplayer", "com.droidlogic.imageplayer.FullImageActivity");
