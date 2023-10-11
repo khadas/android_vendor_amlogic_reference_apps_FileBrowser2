@@ -961,6 +961,7 @@ public class FileBrower extends Activity {
             usbBroadCastReceiver = null;
         }
         executorService.shutdownNow();
+        System.exit(0);
     }
     private final class ScannPathTask extends AsyncTask<String, Void, Void> {
 
