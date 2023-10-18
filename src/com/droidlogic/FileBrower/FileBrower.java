@@ -129,6 +129,7 @@ public class FileBrower extends Activity {
     private static final int LOAD_DIALOG_ID = 4;
     private ProgressDialog load_dialog;
     private boolean mLoadCancel = false;
+    private boolean isPause = false;
 
     private PowerManager.WakeLock mWakeLock;
     private static final String SD_PATH_EQUAL = "/storage/sdcard1";
@@ -284,6 +285,7 @@ public class FileBrower extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        isPause = false;
         //StorageManager m_storagemgr = (StorageManager) getSystemService(Context.STORAGE_SERVICE);
         //m_storagemgr.registerListener(mListener);
 
@@ -516,7 +518,7 @@ public class FileBrower extends Activity {
         unregisterReceiver(mMountReceiver);
 
         mLoadCancel = true;
-
+        isPause = true;
         //update sharedPref
         SharedPreferences settings = getSharedPreferences("settings", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -1242,10 +1244,14 @@ public class FileBrower extends Activity {
                 mSimpleAdapter = SimpleAdapterHelper.setFlieListAdapter(FileBrower.this,
                         typeList, true, (GridView) lv);
             }
-            lv.setAdapter(mSimpleAdapter);
+            if (!isPause) {
+                lv.setAdapter(mSimpleAdapter);
+            }
         } else {
-            lv.setAdapter(getDeviceListAdapter());
-            lv.requestFocus();
+            if (!isPause) {
+                lv.setAdapter(getDeviceListAdapter());
+                lv.requestFocus();
+            }
         }
     }
 
@@ -1849,6 +1855,9 @@ public class FileBrower extends Activity {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
+                if (isPause) {
+                    return;
+                }
                 File file = new File(path);
                 File[] files = file.listFiles();
                 List<Map<String, Object>> list109 =   getFileListDataSortedAsync(path, "by_name");
