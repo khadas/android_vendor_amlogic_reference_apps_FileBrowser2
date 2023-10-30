@@ -1093,7 +1093,7 @@ public class FileBrower extends Activity {
             } else if (FileUtils.isMusic(f.getName())) {
                 intent.setData(uri);
                 intent.setClassName("com.droidlogic.musicplayer", "com.droidlogic.musicplayer.PlaybackActivity");
-            } else if (FileUtils.isPhoto(f.getName())) {
+            } else if (FileUtils.isPhoto(f.getName()) && Build.VERSION.SDK_INT < 34) {
                 intent.setData(uri);
                 intent.setClassName("com.droidlogic.imageplayer", "com.droidlogic.imageplayer.FullImageActivity");
             } else {
