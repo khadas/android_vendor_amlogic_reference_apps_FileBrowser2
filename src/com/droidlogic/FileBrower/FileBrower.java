@@ -1164,7 +1164,7 @@ public class FileBrower extends Activity {
             intent.setDataAndType(Uri.fromFile(f),type);
             startActivity(intent);
             return;
-        } else if (FileUtils.isPhoto(f.getName())) {
+        } else if (FileUtils.isPhoto(f.getName()) && Build.VERSION.SDK_INT < 34) {
             intent.setDataAndType(uri, "image/*");
             intent.setClassName("com.droidlogic.imageplayer", "com.droidlogic.imageplayer.FullImageActivity");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
