@@ -1101,6 +1101,7 @@ public class FileBrower extends Activity {
             } else {
                 intent.setAction(android.content.Intent.ACTION_VIEW);
                 intent.setDataAndType(uri,type);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             }
             if (getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
                 Intent intent2 = new Intent();
@@ -1172,6 +1173,7 @@ public class FileBrower extends Activity {
             type = mFileListManager.CheckMediaType(f);
             intent.setAction(android.content.Intent.ACTION_VIEW);
             intent.setDataAndType(uri,type);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
         if (getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
             type = mFileListManager.CheckMediaType(f);
